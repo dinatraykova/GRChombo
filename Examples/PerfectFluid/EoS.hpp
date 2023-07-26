@@ -23,17 +23,16 @@ class EoS
     //! The constructor
     EoS(params_t a_params) : m_params(a_params) {}
 
-    //! Set the potential function for the scalar field here
+    //! Set the pressure of the perfect fluid here
     template <class data_t, template <typename> class vars_t>
-    void compute_eos(data_t &P_of_rho0, data_t &dPdrho0,
+    void compute_eos(data_t &P_of_rho, data_t &dPdrho,
                            const vars_t<data_t> &vars) const
     {
-      // The pressure value at rho0
-      // w rho0
-      P_of_rho0 = m_params.eos_w * vars.rho0;
+      // The pressure value in function of rho
+      P_of_rho = m_params.eos_w * vars.rho * (1. + vars.eps);
 
-      // The pressure gradient at rho0
-      dPdrho0 = m_params.eos_w;
+      // The pressure gradient wrt rho
+      dPdrho = m_params.eos_w * (1. + vars.eps);
     }
 };
 

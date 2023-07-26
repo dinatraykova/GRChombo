@@ -14,7 +14,7 @@
 #include "UserVariables.hpp" //This files needs NUM_VARS - total no. components
 #include "VarsTools.hpp"
 #include "simd.hpp"
-//#include "PrimitiveRecovety.hpp"
+#include "PrimitiveRecovery.hpp"
 
 //! Class which sets the initial scalar field matter config
 class InitialFluidData
@@ -46,19 +46,19 @@ class InitialFluidData
         data_t rr2 = rr * rr;
 	
         // calculate the field value
-        data_t rho0 = m_params.amplitude *
+        data_t rho = m_params.amplitude *
 	                     (exp(-pow(rr / m_params.width, 2.0))) + m_params.delta;
 	data_t v2 = 0.;
 	data_t eps = 0.;
-	data_t P = rho0*(1.+eps)/3.;
+	data_t P = rho * (1. + eps) / 3.;
         data_t WW = 1./(1. - v2);
-        data_t hh = 1. + eps + P/rho0;
+        data_t hh = 1. + eps + P / rho;
 
-	data_t D0 = rho0*sqrt(WW);
-	data_t Ec0 = rho0 * hh * WW - P - D0;
+	data_t D = rho * sqrt(WW);
+	data_t tau = rho * hh * WW - P - D;
         // store the vars
-        current_cell.store_vars(D0, c_D);
-	current_cell.store_vars(Ec0, c_Ec);
+        current_cell.store_vars(D, c_D);
+	current_cell.store_vars(tau, c_tau);
     }
 
   protected:

@@ -37,7 +37,7 @@ template <class eos_t = DefaultEoS> class PerfectFluid
     eos_t my_eos;
 
   public:
-    //!  Constructor of class ScalarField, inputs are the matter parameters.
+    //!  Constructor of class PerfectFluid, inputs are the matter parameters.
     PerfectFluid(const eos_t a_eos) : my_eos(a_eos) {}
 
     //! Structure containing the rhs variables for the matter fields
@@ -45,9 +45,9 @@ template <class eos_t = DefaultEoS> class PerfectFluid
     {
         data_t D;
         Tensor<1, data_t> Sj;
-        data_t Ec;
+        data_t tau;
         Tensor<1, data_t> vi;
-        data_t rho0;
+        data_t rho;
         data_t eps;
 
         /// Defines the mapping between members of Vars and Chombo grid
@@ -60,10 +60,10 @@ template <class eos_t = DefaultEoS> class PerfectFluid
             define_enum_mapping(mapping_function, c_D, D);
             define_enum_mapping(mapping_function,
                                 GRInterval<c_Sj1, c_Sj3>(), Sj);
-	    define_enum_mapping(mapping_function, c_Ec, Ec);
+	    define_enum_mapping(mapping_function, c_tau, tau);
             define_enum_mapping(mapping_function,
                                 GRInterval<c_vi1, c_vi3>(), vi);
-	    define_enum_mapping(mapping_function, c_rho0, rho0);
+	    define_enum_mapping(mapping_function, c_rho, rho);
 	    define_enum_mapping(mapping_function, c_eps, eps);
         }
     };
@@ -72,14 +72,14 @@ template <class eos_t = DefaultEoS> class PerfectFluid
     //!  2nd derivs
     template <class data_t> struct Diff2Vars
     {
-        data_t rho0;
+        data_t rho;
 
         /// Defines the mapping between members of Vars and Chombo grid
         ///  variables (enum in User_Variables)
       template <typename mapping_function_t>
       void enum_mapping(mapping_function_t mapping_function)
       {
-          VarsTools::define_enum_mapping(mapping_function, c_rho0, rho0);
+          VarsTools::define_enum_mapping(mapping_function, c_rho, rho);
   //        VarsTools::define_enum_mapping(
   //              mapping_function, GRInterval<c_Avec1, c_Avec3>(), Avec);
       }
