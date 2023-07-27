@@ -16,7 +16,8 @@
 #include "simd.hpp"
 #include "PrimitiveRecovery.hpp"
 
-//! Class which sets the initial scalar field matter config
+//! Class which sets the initial fluid matter config
+// aka Kevin data
 class InitialFluidData
 {
   public:
@@ -27,8 +28,11 @@ class InitialFluidData
         double amplitude; //
         std::array<double, CH_SPACEDIM>
             center;   //!< Centre of perturbation in initial SF bubble
-        double delta;
-        double width; //!< Width of bump in initial SF bubble
+        double rho0;
+        double uflow;
+        double amp;
+        double awidth;
+        double sigma;
     };
 
     //! The constructor
@@ -44,20 +48,55 @@ class InitialFluidData
         Coordinates<data_t> coords(current_cell, m_dx, m_params.center);
         data_t rr = coords.get_radius();
         data_t rr2 = rr * rr;
+	data_t x = coords.x;
+	data_t y = coords.y;
+	data_t z = coords.z;
 	
-        // calculate the field value
-        data_t rho = m_params.amplitude *
-	                     (exp(-pow(rr / m_params.width, 2.0))) + m_params.delta;
-	data_t v2 = 0.;
-	data_t eps = 0.;
+	double xx, yy;
+	double vx, vy, nn;
+	double gamma_fac;
+	double ux, uy;
+
+	//DT: What is L? also ycenter?
+        const double L[2] = {1.,2.};
+	//double uflow = 1./(4.*sqrt(3));
+	double ycenter[2] = {-0.5,0.5};
+	//KevinHelmholtz(1.,1./(4.*sqrt(3)),0.01,0.05,0.2,ycenter);
+
+	vx = uflow*(tanh((y-ycenter[0])/awidth)
+		    - tanh((y-ycenter[1])/awidth) - 1.);
+	vy = amp * sin(2.*M_PI*x/L[0])*(exp(-pow((y-ycenter[0])/sigma,2))
+				       + exp(-pow((y-ycenter[1])/sigma,2)));
+	vz = 0.;
+	//DT: Thought eps was meant to be 0?
+	esp = 1. + 0.5*(tanh((y-ycenter[0])/awidth) - tanh((y-ycenter[1])/awidth));
+	gamma_fac = 1./sqrt(1-vx*vx-vy*vy - vz*vz);
+	ux = gamma_fac * vx;
+	uy = gamma_fac * vy;
+	uz = gamma_fac * vz;
+
+        data_t rho = rho0;
+	data_t v2 = ux*ux + uy*uy + uz*uz;
 	data_t P = rho * (1. + eps) / 3.;
         data_t WW = 1./(1. - v2);
         data_t hh = 1. + eps + P / rho;
 
 	data_t D = rho * sqrt(WW);
 	data_t tau = rho * hh * WW - P - D;
+	data_t Sj1 = rho * hh * WW * ux;
+	data_t Sj2 = rho * hh * WW * uy;
+	data_t Sj3 = rho * hh * WW * uz;
+
         // store the vars
+	current_cell.store_vars(rho, c_rho);
+	current_cell.store_vars(u1, c_vi1);
+	current_cell.store_vars(u2, c_vi2);
+	current_cell.store_vars(u3, c_vi3);
+	current_cell.store_vars(eps, c_eps);
         current_cell.store_vars(D, c_D);
+	current_cell.store_vars(Sj3, c_Sj1);
+	current_cell.store_vars(Sj2, c_Sj2);
+	current_cell.store_vars(Sj1, c_Sj3);
 	current_cell.store_vars(tau, c_tau);
     }
 
