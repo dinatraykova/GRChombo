@@ -23,8 +23,8 @@ class WENODerivatives
       RIGHT_PLUS,
     };
 
-  public:
-    WENODerivatives(double a_eW=1.0): m_eW(a_eW){}
+  //  public:
+    WENODerivatives(double a_eW): m_eW(a_eW){}
 
     template <class data_t>
     ALWAYS_INLINE data_t get_Pface(const double *in_ptr, const int idx,
@@ -203,7 +203,7 @@ class WENODerivatives
     }
 
     template <class data_t>
-    void get_Pface(Tensor<1, <data_t> &diff_value, const Cell<data_t> &current_cell,
+    void get_Pface(Tensor<1, data_t> &diff_value, const Cell<data_t> &current_cell,
 		   int direction, int ivar, int dir_switch) const
     {
         const int stride =
@@ -213,6 +213,9 @@ class WENODerivatives
 	    current_cell.get_box_pointers().m_in_ptr[ivar], in_index, stride, dir_switch);
     }
 
+protected:
+  double m_eW;
+  
 };
 
 #endif /* WENODERIVATIVES_HPP_ */
