@@ -15,7 +15,7 @@ namespace PrimitiveRecovery
 {
 // Primitive to conservative variables
 template <class data_t, template <typename> class vars_t>
-void PtoC(const vars_t<data_t> &vars)
+void PtoC(vars_t<data_t> &vars)
 {
     data_t chi_regularised = simd_max(1e-6, vars.chi);
     Tensor<1, data_t> vi_D;
@@ -44,7 +44,7 @@ void PtoC(const vars_t<data_t> &vars)
 
 // Conservative to primitive variables
 template <class data_t, template <typename> class vars_t>
-void CtoP(const vars_t<data_t> &vars)
+void CtoP(vars_t<data_t> &vars)
 {
     const auto h_UU = TensorAlgebra::compute_inverse_sym(vars.h);
     data_t E = vars.tau + vars.D;

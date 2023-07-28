@@ -72,7 +72,7 @@ void PerfectFluidLevel::prePlotLevel()
 {
     fillAllGhosts();
     EoS eos(m_p.eos_params);
-    PerfectFluidEoS perfect_fluid(eos);
+    PerfectFluidEoS perfect_fluid(m_dx, m_p.lambda, eos);
     BoxLoops::loop(
         MatterConstraints<PerfectFluidEoS>(
             perfect_fluid, m_dx, m_p.G_Newton, c_Ham, Interval(c_Mom, c_Mom)),
@@ -92,7 +92,7 @@ void PerfectFluidLevel::specificEvalRHS(GRLevelData &a_soln, GRLevelData &a_rhs,
 
     // Calculate MatterCCZ4 right hand side with matter_t = ScalarField
     EoS eos(m_p.eos_params);
-    PerfectFluidEoS perfect_fluid(eos);
+    PerfectFluidEoS perfect_fluid(m_dx, m_p.lambda, eos);
     if (m_p.max_spatial_derivative_order == 4)
     {
         FluidCCZ4RHS<PerfectFluidEoS, MovingPunctureGauge,

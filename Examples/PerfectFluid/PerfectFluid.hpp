@@ -9,12 +9,15 @@
 #include "CCZ4Geometry.hpp"
 #include "DefaultEoS.hpp"
 #include "DimensionDefinitions.hpp"
+#include "Fluxes.hpp"
 #include "FourthOrderDerivatives.hpp"
-#include "WENODerivatives.hpp"
+#include "PrimitiveRecovery.hpp"
+#include "Sources.hpp"
 #include "Tensor.hpp"
 #include "TensorAlgebra.hpp"
 #include "UserVariables.hpp" //This files needs NUM_VARS, total num of components
 #include "VarsTools.hpp"
+#include "WENODerivatives.hpp"
 
 //!  Calculates the matter type specific elements such as the EMTensor and
 //   matter evolution
@@ -34,11 +37,14 @@ template <class eos_t = DefaultEoS> class PerfectFluid
 {
   protected:
     //! The local copy of the potential
+    double m_dx;
+    double m_lambda;
     eos_t my_eos;
 
   public:
     //!  Constructor of class PerfectFluid, inputs are the matter parameters.
-    PerfectFluid(const eos_t a_eos) : my_eos(a_eos) {}
+    PerfectFluid(double a_dx, const double a_lambda,const eos_t a_eos) 
+	: m_dx(a_dx), m_lambda(a_lambda), my_eos(a_eos) {}
 
     //! Structure containing the rhs variables for the matter fields
     template <class data_t> struct Vars

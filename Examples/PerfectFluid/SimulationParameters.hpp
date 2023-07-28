@@ -38,6 +38,7 @@ class SimulationParameters : public SimulationParametersBase
 	pp.load("fluid_awidth", initial_params.awidth, 0.05);
 	pp.load("fluid_sigma", initial_params.sigma, 0.2);
 	pp.load("fluid_ycenter", initial_params.ycenter, {-0.5,0.5});
+	pp.load("lambda", lambda, 1.); //eigenvalue for numerical flux
         pp.load("eos_w", eos_params.eos_w, 1./3.);
 
         // Initial Kerr data
@@ -75,6 +76,7 @@ class SimulationParameters : public SimulationParametersBase
 
     // Initial data for matter and potential and BH
     double G_Newton;
+    double lambda;
     InitialFluidData::params_t initial_params;
     EoS::params_t eos_params;
     Minkowski::params_t kerr_params;

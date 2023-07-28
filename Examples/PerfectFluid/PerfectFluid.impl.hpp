@@ -86,17 +86,56 @@ void PerfectFluid<eos_t>::add_matter_rhs(
     data_t dPdrho = 0.0;
     my_eos.compute_eos(P_of_rho, dPdrho, vars);
 
+    vars_t<data_t> source = Sources::compute_source(vars, lp);
     // evolution equations for the fluid conservative variables
-    rhs.D = 0.0;
-    rhs.tau = 0.0;
-    rhs.rho = 0.0;
-    rhs.eps = 0.0;
+    rhs.D = source.D;
+    FOR(i) rhs.Sj[i] = source.Sj[i];
+    rhs.tau = source.tau;
 
-    FOR(i)
-    {
-      rhs.Sj[i] = 0.0;
-      rhs.vi[i] = 0.0;
+    FOR(idir) {
+        vars_t<data_t> vars_right_p;
+        vars_right_p.rho = rp.rho[idir];
+        vars_right_p.eps = rp.eps[idir];
+        FOR(j) vars_right_p.vi[j] = rp.vi[j][idir];
+        PrimitiveRecovery::PtoC(vars_right_p);
+        vars_t<data_t> flux_right_p = Fluxes::compute_flux(vars_right_p, idir, m_lambda);
+
+        vars_t<data_t> vars_right_m;
+        vars_right_m.rho = rm.rho[idir];
+        vars_right_m.eps = rm.eps[idir];
+        FOR(j) vars_right_m.vi[j] = rm.vi[j][idir];
+        PrimitiveRecovery::PtoC(vars_right_m);
+        vars_t<data_t> flux_right_m = Fluxes::compute_flux(vars_right_m, idir, m_lambda);
+
+        rhs.D -= 1. / (2. * m_dx) * (flux_right_p.D + flux_right_m.D);
+        FOR(j) rhs.Sj[j] -= 1. / (2. * m_dx) * (flux_right_p.Sj[j] + flux_right_m.Sj[j]);
+        rhs.tau -= 1. / (2. * m_dx) * (flux_right_p.tau + flux_right_m.tau);
     }
+
+    FOR(idir) {
+        vars_t<data_t> vars_left_p;
+        vars_left_p.rho = lp.rho[idir];
+        vars_left_p.eps = lp.eps[idir];
+        FOR(j) vars_left_p.vi[j] = lp.vi[j][idir];
+        PrimitiveRecovery::PtoC(vars_left_p);
+        vars_t<data_t> flux_left_p = Fluxes::compute_flux(vars_left_p, idir, m_lambda);
+
+        vars_t<data_t> vars_left_m;
+        vars_left_m.rho = lm.rho[idir];
+        vars_left_m.eps = lm.eps[idir];
+        FOR(j) vars_left_m.vi[j] = lm.vi[j][idir];
+        PrimitiveRecovery::PtoC(vars_left_m);
+        vars_t<data_t> flux_left_m = Fluxes::compute_flux(vars_left_m, idir, m_lambda);
+
+        rhs.D += 1. / (2. * m_dx) * (flux_left_p.D + flux_left_m.D);
+        FOR(j) rhs.Sj[j] += 1. / (2. * m_dx) * (flux_left_p.Sj[j] + flux_left_m.Sj[j]); 
+        rhs.tau += 1. / (2. * m_dx) * (flux_left_p.tau + flux_left_m.tau);
+    }
+
+    rhs.rho = 0.;
+    rhs.eps = 0.;
+    FOR(i) rhs.vi[i] = 0.;
+
 }
 
 #endif /* SCALARFIELD_IMPL_HPP_ */
