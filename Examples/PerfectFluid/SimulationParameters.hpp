@@ -32,12 +32,12 @@ class SimulationParameters : public SimulationParametersBase
             center; // already read in SimulationParametersBase
         pp.load("G_Newton", G_Newton,
                 0.0); // for now the example neglects backreaction
-        pp.load("fluid_amplitude", initial_params.amplitude, 0.1);
 	pp.load("fluid_rho", initial_params.rho0, 1.0);
 	pp.load("fluid_uflow", initial_params.uflow, 1./(4.*sqrt(3)));
-	pp.load("fluid_amp", initial_params.amp, 0.01);
+	pp.load("fluid_amplitude", initial_params.amplitude, 0.01);
 	pp.load("fluid_awidth", initial_params.awidth, 0.05);
 	pp.load("fluid_sigma", initial_params.sigma, 0.2);
+	pp.load("fluid_ycenter", initial_params.ycenter, {-0.5,0.5});
         pp.load("eos_w", eos_params.eos_w, 1./3.);
 
         // Initial Kerr data
