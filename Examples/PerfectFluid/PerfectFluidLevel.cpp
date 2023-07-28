@@ -13,7 +13,7 @@
 #include "TraceARemoval.hpp"
 
 // For RHS update
-#include "MatterCCZ4RHS.hpp"
+#include "FluidCCZ4RHS.hpp"
 
 // For constraints calculation
 #include "NewMatterConstraints.hpp"
@@ -54,6 +54,8 @@ void PerfectFluidLevel::initialData()
 
     // First set everything to zero then initial conditions for scalar field -
     // here a Kerr BH and a scalar field profile
+    //    EoS eos(m_p.eos_params);
+    //PerfectFluidEoS perfect_fluid(eos);
     BoxLoops::loop(
         make_compute_pack(SetValue(0.), Minkowski(m_p.kerr_params, m_dx),
                           InitialFluidData(m_p.initial_params, m_dx)),
@@ -93,16 +95,18 @@ void PerfectFluidLevel::specificEvalRHS(GRLevelData &a_soln, GRLevelData &a_rhs,
     PerfectFluidEoS perfect_fluid(eos);
     if (m_p.max_spatial_derivative_order == 4)
     {
-        MatterCCZ4RHS<PerfectFluidEoS, MovingPunctureGauge,
-                      FourthOrderDerivatives>
+        FluidCCZ4RHS<PerfectFluidEoS, MovingPunctureGauge,
+		     //	     FourthOrderDerivatives, WENODerivatives>
+		     FourthOrderDerivatives>
             my_ccz4_matter(perfect_fluid, m_p.ccz4_params, m_dx, m_p.sigma,
                            m_p.formulation, m_p.G_Newton);
         BoxLoops::loop(my_ccz4_matter, a_soln, a_rhs, EXCLUDE_GHOST_CELLS);
     }
     else if (m_p.max_spatial_derivative_order == 6)
     {
-        MatterCCZ4RHS<PerfectFluidEoS, MovingPunctureGauge,
-                      SixthOrderDerivatives>
+        FluidCCZ4RHS<PerfectFluidEoS, MovingPunctureGauge,
+		     // SixthOrderDerivatives, WENODerivatives>
+		     FourthOrderDerivatives>
             my_ccz4_matter(perfect_fluid, m_p.ccz4_params, m_dx, m_p.sigma,
                            m_p.formulation, m_p.G_Newton);
         BoxLoops::loop(my_ccz4_matter, a_soln, a_rhs, EXCLUDE_GHOST_CELLS);

@@ -9,7 +9,7 @@
 #include "ADMConformalVars.hpp"
 #include "Cell.hpp"
 #include "Coordinates.hpp"
-#include "MatterCCZ4RHS.hpp"
+#include "FluidCCZ4RHS.hpp"
 #include "PerfectFluid.hpp"
 #include "Tensor.hpp"
 #include "UserVariables.hpp" //This files needs NUM_VARS - total no. components
@@ -53,9 +53,8 @@ class InitialFluidData
         // where am i?
         Coordinates<data_t> coords(current_cell, m_dx, m_params.center);
 
-	//	MetricVars<data_t> metric_vars;
-	//m_background.compute_metric_background(metric_vars, coords);
-
+	MetricVars<data_t> metric_vars;
+	
 	data_t x = coords.x;
 	double y = coords.y;
 	double z = coords.z;

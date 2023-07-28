@@ -102,9 +102,10 @@ template <class eos_t = DefaultEoS> class PerfectFluid
     void add_matter_rhs(
         rhs_vars_t<data_t> &rhs,             //!< value of the RHS for all vars
         const vars_t<data_t> &vars,          //!< value of the variables
-        const vars_t<Tensor<1, data_t>> &d1, //!< value of the 1st derivs
-        const diff2_vars_t<Tensor<2, data_t>> &d2, //!< value of the 2nd derivs
-        const vars_t<data_t> &advec)
+        const vars_t<Tensor<1, data_t>> &lm, //!< value of the left_minus weno
+	const vars_t<Tensor<1, data_t>> &lp, //!< value of the left_plus weno
+	const vars_t<Tensor<1, data_t>> &rm, //!< value of the right_minus weno
+	const vars_t<Tensor<1, data_t>> &rp) //!< value of the right_plus weno
         const; //!< the value of the advection terms
 
 };

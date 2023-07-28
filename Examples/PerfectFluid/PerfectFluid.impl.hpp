@@ -70,9 +70,10 @@ template <class data_t, template <typename> class vars_t,
           template <typename> class rhs_vars_t>
 void PerfectFluid<eos_t>::add_matter_rhs(
     rhs_vars_t<data_t> &rhs, const vars_t<data_t> &vars,
-    const vars_t<Tensor<1, data_t>> &d1,
-    const diff2_vars_t<Tensor<2, data_t>> &d2,
-    const vars_t<data_t> &advec) const
+    const vars_t<Tensor<1, data_t>> &lm,
+    const vars_t<Tensor<1, data_t>> &lp,
+    const vars_t<Tensor<1, data_t>> &rm,
+    const vars_t<Tensor<1, data_t>> &rp) const
 {
     using namespace TensorAlgebra;
 
