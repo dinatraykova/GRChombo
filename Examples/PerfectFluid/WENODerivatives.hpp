@@ -44,6 +44,8 @@ class WENODerivatives
 
 	
 	if (dir_switch == 0) // LEFT_MINUS
+	  // Negative fluxes to compute primitive variables
+	  // at the left cell boundary i-1/2: p^{L-}_{i-1/2} 
 	  {
 	    pim2 = in[idx - 3.*stride];
 	    pim1 = in[idx - 2.*stride];
@@ -55,35 +57,12 @@ class WENODerivatives
 	    v[0] = (2.*pim2 - 7.*pim1 + 11.*pi0 )/6.;
 	    v[1] = (  -pim1 + 5.*pi0  +  2.*pip1)/6.;
 	    v[2] = (2.*pi0  + 5.*pip1 -     pip2)/6.;
-
-	    // Smoothness indicators
-	    beta[0] = (13./12.)*pow(pim2-2.*pim1+pi0,2)
-	      + (1./4.)*pow(pim2  -4.*pim1+3.*pi0,2);
-	    beta[1] = (13./12.)*pow(pim1-2.*pi0 +pip1,2)
-	      + (1./4.)*pow(pim1  -pip1,2);
-	    beta[2] = (13./12.)*pow(pi0 -2.*pip1+pip2,2)
-	      + (1./4.)*pow(3.*pi0-4.*pip1+pip2,2);
-
-	    // Weights
-	    sum_alpha = 0.;
-	    FOR(j)
-	    {
-	      alpha[j] = dd[j]/((a_eW+beta[j])*(a_eW+beta[j]));
-	      sum_alpha += alpha[j];
-	    }
-	    FOR(j){ weights[j] = alpha[j]/sum_alpha; }
-
-	    // primitive variables on the left side of the
-	    // cell interface i-1/2: p^{L-}_{i-1/2}
-	    double p_LeftMinus = 0.;
-	    FOR(j) p_LeftMinus += weights[j]*v[j];
-	    return p_LeftMinus;
 	  }
 
-	if (dir_switch == 3) // LEFT_PLUS
+	if (dir_switch == 1) // LEFT_PLUS
 	  {
-	    // Choose negative fluxes to compute primitive variables
-            // at the right cell boundary i+1/2: p^{L+}_{i-1/2}
+	    // Positive fluxes to compute primitive variables
+            // at the left cell boundary i-1/2: p^{L+}_{i-1/2}
             pim2 = [idx - 2.*stride];
             pim1 = [idx - stride];
             pi0  = [idx];
@@ -91,38 +70,15 @@ class WENODerivatives
             pip2 = [idx + 2.*stride];
 
             // ENO polynomials
-            u[0] = (   -pim2 + 5.*pim1 + 2.*pi0 )/6.;
-            u[1] = ( 2.*pim1 + 5.*pi0  -    pip1)/6.;
-            u[2] = (11.*pi0  - 7.*pip1 + 2.*pip2)/6.;
+            v[0] = (   -pim2 + 5.*pim1 + 2.*pi0 )/6.;
+            v[1] = ( 2.*pim1 + 5.*pi0  -    pip1)/6.;
+            v[2] = (11.*pi0  - 7.*pip1 + 2.*pip2)/6.;
 
-            // Smoothness return p_RightMinus;indicators
-            beta[0] = (13./12.)*pow(pim2-2.*pim1+pi0,2)
-              + (1./4.)*pow(pim2  -4.*pim1+3.*pi0,2);
-            beta[1] = (13./12.)*pow(pim1-2.*pi0 +pip1,2)
-              + (1./4.)*pow(pim1  -pip1,2);
-            beta[2] = (13./12.)*pow(pi0 -2.*pip1+pip2,2)
-              + (1./4.)*pow(3.*pi0-4.*pip1+pip2,2);
-
-            // Weights
-            sum_alpha = 0.;
-            FOR(j)
-            {
-              alpha[j] = dd[j]/((a_eW+beta[j])*(a_eW+beta[j]));
-              sum_alpha += alpha[j];
-            }
-            FOR(j)
-            {
-              weights[j] = alpha[j]/sum_alpha;
-            }
-
-            // primitive variables on the right side of the
-            // cell interface i+1/2: p^{L+}_{i+1/2}
-            double p_LeftPlus = 0.;
-            FOR(j) {p_LeftPlus += weights[j]*v[j];}
-            return p_LeftPlus;
 	  }
 	
 	if (dir_switch == 2) // RIGHT_MINUS
+	  // Negative fluxes to compute primitive variables
+	  // at the right cell boundary i+1/2: p^{R-}_{i+1/2}
 	  {
 	    pim2 = in[idx - 2.*stride];
 	    pim1 = in[idx - stride];
@@ -134,34 +90,11 @@ class WENODerivatives
 	    v[0] = (2.*pim2 - 7.*pim1 + 11.*pi0 )/6.;
 	    v[1] = (  -pim1 + 5.*pi0  +  2.*pip1)/6.;
 	    v[2] = (2.*pi0  + 5.*pip1 -     pip2)/6.;
-
-	    // Smoothness indicators
-	    beta[0] = (13./12.)*pow(pim2-2.*pim1+pi0,2)
-	      + (1./4.)*pow(pim2  -4.*pim1+3.*pi0,2);
-	    beta[1] = (13./12.)*pow(pim1-2.*pi0 +pip1,2)
-	      + (1./4.)*pow(pim1  -pip1,2);
-	    beta[2] = (13./12.)*pow(pi0 -2.*pip1+pip2,2)
-	      + (1./4.)*pow(3.*pi0-4.*pip1+pip2,2);
-
-	    // Weights
-	    sum_alpha = 0.;
-	    FOR(j)
-	    {
-	      alpha[j] = dd[j]/((a_eW+beta[j])*(a_eW+beta[j]));
-	      sum_alpha += alpha[j];
-	    }
-	    FOR(j){ weights[j] = alpha[j]/sum_alpha; }
-
-	    // primitive variables on the left side of the
-	    // cell interface i+1/2: p^{R-}_{i+1/2}
-	    double p_RightMinus = 0.;
-	    FOR(j) {p_RightMinus += weights[j]*v[j];}
-	    return p_RightMinus;
 	  }
 	
 	if (dir_switch == 3) // RIGHT_PLUS
 	  {
-	    // Choose negative fluxes to compute primitive variables
+	    // Positive fluxes to compute primitive variables
 	    // at the right cell boundary i+1/2: p^{R+}_{i+1/2}
 	    pim2 = [idx - stride];
 	    pim1 = [idx];
@@ -170,36 +103,35 @@ class WENODerivatives
 	    pip2 = [idx + 3.*stride];
 
 	    // ENO polynomials
-	    u[0] = (   -pim2 + 5.*pim1 + 2.*pi0 )/6.;
-	    u[1] = ( 2.*pim1 + 5.*pi0  -    pip1)/6.;
-	    u[2] = (11.*pi0  - 7.*pip1 + 2.*pip2)/6.;
-	    
-	    // Smoothness return p_RightMinus;indicators
-	    beta[0] = (13./12.)*pow(pim2-2.*pim1+pi0,2)
-	      + (1./4.)*pow(pim2  -4.*pim1+3.*pi0,2);
-	    beta[1] = (13./12.)*pow(pim1-2.*pi0 +pip1,2)
-	      + (1./4.)*pow(pim1  -pip1,2);
-	    beta[2] = (13./12.)*pow(pi0 -2.*pip1+pip2,2)
-	      + (1./4.)*pow(3.*pi0-4.*pip1+pip2,2);
-	    
-	    // Weights
-	    sum_alpha = 0.;
-	    FOR(j)
-	    {
-	      alpha[j] = dd[j]/((a_eW+beta[j])*(a_eW+beta[j]));
-	      sum_alpha += alpha[j];
-	    }
-	    FOR(j)
-	    {
-	      weights[j] = alpha[j]/sum_alpha;
-	    }
-	    
-	    // primitive variables on the right side of the
-            // cell interface i+1/2: p^{R+}_{i+1/2}
-            double p_RightPlus = 0.;
-            FOR(j) {p_RightPlus += weights[j]*v[j];}
-            return p_RightPlus;
+	    v[0] = (   -pim2 + 5.*pim1 + 2.*pi0 )/6.;
+	    v[1] = ( 2.*pim1 + 5.*pi0  -    pip1)/6.;
+	    v[2] = (11.*pi0  - 7.*pip1 + 2.*pip2)/6.;
 	  }
+
+	// Smoothness indicators 
+	beta[0] = (13./12.)*pow(pim2-2.*pim1+pi0,2)
+	  + (1./4.)*pow(pim2  -4.*pim1+3.*pi0,2);
+	beta[1] = (13./12.)*pow(pim1-2.*pi0 +pip1,2)
+	  + (1./4.)*pow(pim1  -pip1,2);
+	beta[2] = (13./12.)*pow(pi0 -2.*pip1+pip2,2)
+	  + (1./4.)*pow(3.*pi0-4.*pip1+pip2,2);
+	
+	// Weights
+	sum_alpha = 0.;
+	FOR(j)
+	{
+	  alpha[j] = dd[j]/((a_eW+beta[j])*(a_eW+beta[j]));
+	  sum_alpha += alpha[j];
+	}
+	FOR(j)
+	{
+	  weights[j] = alpha[j]/sum_alpha;
+	}
+	    
+	// primitive variables on the cell interface
+	double pFace = 0.;
+	FOR(j) {pFace += weights[j]*v[j];}
+	return pFace;
     }
 
     template <class data_t>
