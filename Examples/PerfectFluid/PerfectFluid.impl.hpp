@@ -48,7 +48,7 @@ emtensor_t<data_t> PerfectFluid<eos_t>::compute_emtensor(
     // S_ij = T_ij
     FOR(i, j)
     {
-        out.Sij[i][j] = vars.rho * hh * WW * vi_D[i] * vi_D[j]
+      out.Sij[i][j] = vars.rho * hh * WW * vi_D[i] * vi_D[j]
 	  + vars.h[i][j] * P_of_rho / chi_regularised;
     }
 
@@ -66,7 +66,7 @@ emtensor_t<data_t> PerfectFluid<eos_t>::compute_emtensor(
 
 template <class eos_t>
 template <class data_t, template <typename> class vars_t,
-          template <typename> class diff2_vars_t,
+	  //          template <typename> class diff2_vars_t,
           template <typename> class rhs_vars_t>
 void PerfectFluid<eos_t>::add_matter_rhs(
     rhs_vars_t<data_t> &rhs, const vars_t<data_t> &vars,
@@ -74,11 +74,13 @@ void PerfectFluid<eos_t>::add_matter_rhs(
     const vars_t<Tensor<1, data_t>> &lp,
     const vars_t<Tensor<1, data_t>> &rm,
     const vars_t<Tensor<1, data_t>> &rp) const
+//const vars_t<Tensor<1, data_t>> &d1,
+//   const vars_t<data_t> &advec) const
 {
     using namespace TensorAlgebra;
 
-    const auto h_UU = compute_inverse_sym(vars.h);
-    const auto chris = compute_christoffel(d1.h, h_UU);
+    //const auto h_UU = compute_inverse_sym(vars.h);
+    //    const auto chris = compute_christoffel(d1.h, h_UU);
 
     data_t P_of_rho = 0.0;
     data_t dPdrho = 0.0;

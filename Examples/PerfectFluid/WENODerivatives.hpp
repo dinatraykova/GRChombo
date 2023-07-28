@@ -24,15 +24,15 @@ public:
     };
 
   //public:
-  WENODerivatives(double a_eW) : m_eW(a_eW){}
-
+  //  WENODerivatives(double a_eW) : m_eW(a_eW){}
+  WENODerivatives(){}
     template <class data_t>
     ALWAYS_INLINE data_t get_Pface(const double *in_ptr, const int idx,
 				   const int stride, int dir_switch) const
     {
         data_t beta[3] = {0.,0.,0.};
         const double dd[3] = {3./10.,3./5.,1./10.};
-	//const double eW = 1.;
+	const double eW = 1.;
         data_t alpha[3] = {0.,0.,0.};
         data_t sum_alpha;
         data_t weights[3] = {0.,0.,0.};
@@ -47,8 +47,8 @@ public:
 	  // Negative fluxes to compute primitive variables
 	  // at the left cell boundary i-1/2: p^{L-}_{i-1/2} 
 	  {
-	    pim2 = in[idx - 3.*stride];
-	    pim1 = in[idx - 2.*stride];
+	    pim2 = in[idx - 3*stride];
+	    pim1 = in[idx - 2*stride];
 	    pi0  = in[idx - stride];
 	    pip1 = in[idx];
 	    pip2 = in[idx + stride];
@@ -63,11 +63,11 @@ public:
 	  {
 	    // Positive fluxes to compute primitive variables
             // at the left cell boundary i-1/2: p^{L+}_{i-1/2}
-            pim2 = in[idx - 2.*stride];
+            pim2 = in[idx - 2*stride];
             pim1 = in[idx - stride];
             pi0  = in[idx];
             pip1 = in[idx + stride];
-            pip2 = in[idx + 2.*stride];
+            pip2 = in[idx + 2*stride];
 
             // ENO polynomials
             v[0] = (   -pim2 + 5.*pim1 + 2.*pi0 )/6.;
@@ -80,11 +80,11 @@ public:
 	  // Negative fluxes to compute primitive variables
 	  // at the right cell boundary i+1/2: p^{R-}_{i+1/2}
 	  {
-	    pim2 = in[idx - 2.*stride];
+	    pim2 = in[idx - 2*stride];
 	    pim1 = in[idx - stride];
 	    pi0  = in[idx];
 	    pip1 = in[idx + stride];
-	    pip2 = in[idx + 2.*stride];
+	    pip2 = in[idx + 2*stride];
 
 	    // ENO polynomials
 	    v[0] = (2.*pim2 - 7.*pim1 + 11.*pi0 )/6.;
@@ -99,8 +99,8 @@ public:
 	    pim2 = in[idx - stride];
 	    pim1 = in[idx];
 	    pi0  = in[idx + stride];
-	    pip1 = in[idx + 2.*stride];
-	    pip2 = in[idx + 3.*stride];
+	    pip1 = in[idx + 2*stride];
+	    pip2 = in[idx + 3*stride];
 
 	    // ENO polynomials
 	    v[0] = (   -pim2 + 5.*pim1 + 2.*pi0 )/6.;

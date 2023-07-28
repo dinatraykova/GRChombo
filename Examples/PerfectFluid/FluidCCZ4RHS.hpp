@@ -31,7 +31,7 @@
 */
 
 template <class matter_t, class gauge_t = MovingPunctureGauge,
-          class deriv_t = FourthOrderDerivatives>
+          class deriv_t = FourthOrderDerivatives, class weno_t = WENODerivatives>
 class FluidCCZ4RHS : public CCZ4RHS<gauge_t, deriv_t>
 {
   public:
@@ -43,8 +43,8 @@ class FluidCCZ4RHS : public CCZ4RHS<gauge_t, deriv_t>
     template <class data_t>
     using MatterVars = typename matter_t::template Vars<data_t>;
 
-    template <class data_t>
-    using MatterDiff2Vars = typename matter_t::template Diff2Vars<data_t>;
+  //    template <class data_t>
+  // using MatterDiff2Vars = typename matter_t::template Diff2Vars<data_t>;
 
     template <class data_t>
     using CCZ4Vars = typename CCZ4::template Vars<data_t>;
@@ -62,13 +62,13 @@ class FluidCCZ4RHS : public CCZ4RHS<gauge_t, deriv_t>
         void enum_mapping(mapping_function_t mapping_function)
         {
             CCZ4Vars<data_t>::enum_mapping(mapping_function);
-            MatterVars<data_t>::enum_mapping(mapping_function);
+	    MatterVars<data_t>::enum_mapping(mapping_function);
         }
     };
 
     template <class data_t>
-    struct Diff2Vars : public CCZ4Diff2Vars<data_t>,
-                       public MatterDiff2Vars<data_t>
+    struct Diff2Vars : public CCZ4Diff2Vars<data_t>
+    //                       public MatterDiff2Vars<data_t>
     {
         /// Defines the mapping between members of Vars and Chombo grid
         /// variables (enum in User_Variables)
@@ -76,7 +76,7 @@ class FluidCCZ4RHS : public CCZ4RHS<gauge_t, deriv_t>
         void enum_mapping(mapping_function_t mapping_function)
         {
             CCZ4Diff2Vars<data_t>::enum_mapping(mapping_function);
-            MatterDiff2Vars<data_t>::enum_mapping(mapping_function);
+            //MatterDiff2Vars<data_t>::enum_mapping(mapping_function);
         }
     };
 
@@ -109,6 +109,7 @@ class FluidCCZ4RHS : public CCZ4RHS<gauge_t, deriv_t>
     ) const;
 
     // Class members
+    weno_t m_weno;
     matter_t my_matter;      //!< The matter object, e.g. a scalar field.
     const double m_G_Newton; //!< Newton's constant, set to one by default.
 };

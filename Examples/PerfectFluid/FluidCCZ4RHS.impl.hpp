@@ -11,8 +11,8 @@
 #define FLUIDCCZ4RHS_IMPL_HPP_
 #include "DimensionDefinitions.hpp"
 
-template <class matter_t, class gauge_t, class deriv_t>
-FluidCCZ4RHS<matter_t, gauge_t, deriv_t>::FluidCCZ4RHS(
+template <class matter_t, class gauge_t, class deriv_t, class weno_t>
+FluidCCZ4RHS<matter_t, gauge_t, deriv_t, weno_t>::FluidCCZ4RHS(
     matter_t a_matter, CCZ4_params_t<typename gauge_t::params_t> a_params,
     double a_dx, double a_sigma, int a_formulation, double a_G_Newton)
     : CCZ4RHS<gauge_t, deriv_t>(a_params, a_dx, a_sigma, a_formulation,
@@ -21,9 +21,9 @@ FluidCCZ4RHS<matter_t, gauge_t, deriv_t>::FluidCCZ4RHS(
 {
 }
 
-template <class matter_t, class gauge_t, class deriv_t>
+template <class matter_t, class gauge_t, class deriv_t, class weno_t>
 template <class data_t>
-void FluidCCZ4RHS<matter_t, gauge_t, deriv_t>::compute(
+void FluidCCZ4RHS<matter_t, gauge_t, deriv_t, weno_t>::compute(
     Cell<data_t> current_cell) const
 {
     // copy data from chombo gridpoint into local variables
@@ -32,17 +32,17 @@ void FluidCCZ4RHS<matter_t, gauge_t, deriv_t>::compute(
     const auto d2 = this->m_deriv.template diff2<Diff2Vars>(current_cell);
     const auto advec =
         this->m_deriv.template advection<Vars>(current_cell, matter_vars.shift);
-    ///const auto lm = this->m_weno.template get_Pface<Vars>
-      //      (current_cell, WENODerivatives::LEFT_MINUS);
+    const auto lm = this->m_weno.template get_Pface<Vars>
+            (current_cell, WENODerivatives::LEFT_MINUS);
     //  (current_cell,0);
-    //const auto lp = this->m_weno.template get_Pface<Vars>
-      // (current_cell, WENODerivatives::LEFT_PLUS);
+    const auto lp = this->m_weno.template get_Pface<Vars>
+       (current_cell, WENODerivatives::LEFT_PLUS);
     // (current_cell,1);
-    //const auto rm = this->m_weno.template get_Pface<Vars>
-      // (current_cell, WENODerivatives::RIGHT_MINUS);
+    const auto rm = this->m_weno.template get_Pface<Vars>
+       (current_cell, WENODerivatives::RIGHT_MINUS);
       //(current_cell,2);
-    //const auto rp = this->m_weno.template get_Pface<Vars>
-      //      (current_cell, WENODerivatives::RIGHT_PLUS);
+    const auto rp = this->m_weno.template get_Pface<Vars>
+            (current_cell, WENODerivatives::RIGHT_PLUS);
       //(current_cell,3);
 
     // Call CCZ4 RHS - work out RHS without matter, no dissipation
@@ -53,7 +53,7 @@ void FluidCCZ4RHS<matter_t, gauge_t, deriv_t>::compute(
     add_emtensor_rhs(matter_rhs, matter_vars, d1);
 
     // add evolution of matter fields themselves
-    my_matter.add_matter_rhs(matter_rhs, matter_vars, d1, d1, d1, d1);
+    my_matter.add_matter_rhs(matter_rhs, matter_vars, lm, lp, rm, rp);
 
     // Add dissipation to all terms
     this->m_deriv.add_dissipation(matter_rhs, current_cell, this->m_sigma);
@@ -63,9 +63,9 @@ void FluidCCZ4RHS<matter_t, gauge_t, deriv_t>::compute(
 }
 
 // Function to add in EM Tensor matter terms to CCZ4 rhs
-template <class matter_t, class gauge_t, class deriv_t>
+template <class matter_t, class gauge_t, class deriv_t, class weno_t>
 template <class data_t>
-void FluidCCZ4RHS<matter_t, gauge_t, deriv_t>::add_emtensor_rhs(
+void FluidCCZ4RHS<matter_t, gauge_t, deriv_t, weno_t>::add_emtensor_rhs(
     Vars<data_t> &matter_rhs, const Vars<data_t> &matter_vars,
     const Vars<Tensor<1, data_t>> &d1) const
 {

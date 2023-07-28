@@ -96,8 +96,8 @@ void PerfectFluidLevel::specificEvalRHS(GRLevelData &a_soln, GRLevelData &a_rhs,
     if (m_p.max_spatial_derivative_order == 4)
     {
         FluidCCZ4RHS<PerfectFluidEoS, MovingPunctureGauge,
-		     //	     FourthOrderDerivatives, WENODerivatives>
-		     FourthOrderDerivatives>
+		     	     FourthOrderDerivatives, WENODerivatives>
+	  //FourthOrderDerivatives>
             my_ccz4_matter(perfect_fluid, m_p.ccz4_params, m_dx, m_p.sigma,
                            m_p.formulation, m_p.G_Newton);
         BoxLoops::loop(my_ccz4_matter, a_soln, a_rhs, EXCLUDE_GHOST_CELLS);
@@ -105,8 +105,8 @@ void PerfectFluidLevel::specificEvalRHS(GRLevelData &a_soln, GRLevelData &a_rhs,
     else if (m_p.max_spatial_derivative_order == 6)
     {
         FluidCCZ4RHS<PerfectFluidEoS, MovingPunctureGauge,
-		     // SixthOrderDerivatives, WENODerivatives>
-		     FourthOrderDerivatives>
+		     SixthOrderDerivatives, WENODerivatives>
+	  //FourthOrderDerivatives>
             my_ccz4_matter(perfect_fluid, m_p.ccz4_params, m_dx, m_p.sigma,
                            m_p.formulation, m_p.G_Newton);
         BoxLoops::loop(my_ccz4_matter, a_soln, a_rhs, EXCLUDE_GHOST_CELLS);
