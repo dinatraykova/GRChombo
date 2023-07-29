@@ -32,18 +32,18 @@ void FluidCCZ4RHS<matter_t, gauge_t, deriv_t, weno_t>::compute(
     const auto d2 = this->m_deriv.template diff2<Diff2Vars>(current_cell);
     const auto advec =
         this->m_deriv.template advection<Vars>(current_cell, matter_vars.shift);
-    const auto lm = this->m_weno.template get_Pface<Vars>
-            (current_cell, WENODerivatives::LEFT_MINUS);
+    const auto lm = this->m_weno.template get_Pface<Vars>(
+        current_cell, WENODerivatives::LEFT_MINUS);
     //  (current_cell,0);
-    const auto lp = this->m_weno.template get_Pface<Vars>
-       (current_cell, WENODerivatives::LEFT_PLUS);
+    const auto lp = this->m_weno.template get_Pface<Vars>(
+        current_cell, WENODerivatives::LEFT_PLUS);
     // (current_cell,1);
-    const auto rm = this->m_weno.template get_Pface<Vars>
-       (current_cell, WENODerivatives::RIGHT_MINUS);
-      //(current_cell,2);
-    const auto rp = this->m_weno.template get_Pface<Vars>
-            (current_cell, WENODerivatives::RIGHT_PLUS);
-      //(current_cell,3);
+    const auto rm = this->m_weno.template get_Pface<Vars>(
+        current_cell, WENODerivatives::RIGHT_MINUS);
+    //(current_cell,2);
+    const auto rp = this->m_weno.template get_Pface<Vars>(
+        current_cell, WENODerivatives::RIGHT_PLUS);
+    //(current_cell,3);
 
     // Call CCZ4 RHS - work out RHS without matter, no dissipation
     Vars<data_t> matter_rhs;
@@ -53,7 +53,7 @@ void FluidCCZ4RHS<matter_t, gauge_t, deriv_t, weno_t>::compute(
     add_emtensor_rhs(matter_rhs, matter_vars, d1);
 
     // add evolution of matter fields themselves
-    my_matter.add_matter_rhs(matter_rhs, matter_vars, lm, lp, rm, rp);
+    my_matter.add_matter_rhs(matter_rhs, matter_vars, d1, lm, lp, rm, rp);
 
     // Add dissipation to all terms
     this->m_deriv.add_dissipation(matter_rhs, current_cell, this->m_sigma);

@@ -10,12 +10,12 @@
 #include "CCZ4RHS.hpp"
 #include "Cell.hpp"
 #include "FourthOrderDerivatives.hpp"
-#include "WENODerivatives.hpp"
 #include "MovingPunctureGauge.hpp"
 #include "Tensor.hpp"
 #include "TensorAlgebra.hpp"
 #include "UserVariables.hpp" //This files needs NUM_VARS - total number of components
 #include "VarsTools.hpp"
+#include "WENODerivatives.hpp"
 #include "simd.hpp"
 
 //!  Calculates RHS using CCZ4 including matter terms, and matter variable
@@ -31,7 +31,8 @@
 */
 
 template <class matter_t, class gauge_t = MovingPunctureGauge,
-          class deriv_t = FourthOrderDerivatives, class weno_t = WENODerivatives>
+          class deriv_t = FourthOrderDerivatives,
+          class weno_t = WENODerivatives>
 class FluidCCZ4RHS : public CCZ4RHS<gauge_t, deriv_t>
 {
   public:
@@ -43,8 +44,8 @@ class FluidCCZ4RHS : public CCZ4RHS<gauge_t, deriv_t>
     template <class data_t>
     using MatterVars = typename matter_t::template Vars<data_t>;
 
-  //    template <class data_t>
-  // using MatterDiff2Vars = typename matter_t::template Diff2Vars<data_t>;
+    //    template <class data_t>
+    // using MatterDiff2Vars = typename matter_t::template Diff2Vars<data_t>;
 
     template <class data_t>
     using CCZ4Vars = typename CCZ4::template Vars<data_t>;
@@ -62,12 +63,11 @@ class FluidCCZ4RHS : public CCZ4RHS<gauge_t, deriv_t>
         void enum_mapping(mapping_function_t mapping_function)
         {
             CCZ4Vars<data_t>::enum_mapping(mapping_function);
-	    MatterVars<data_t>::enum_mapping(mapping_function);
+            MatterVars<data_t>::enum_mapping(mapping_function);
         }
     };
 
-    template <class data_t>
-    struct Diff2Vars : public CCZ4Diff2Vars<data_t>
+    template <class data_t> struct Diff2Vars : public CCZ4Diff2Vars<data_t>
     //                       public MatterDiff2Vars<data_t>
     {
         /// Defines the mapping between members of Vars and Chombo grid
@@ -76,7 +76,7 @@ class FluidCCZ4RHS : public CCZ4RHS<gauge_t, deriv_t>
         void enum_mapping(mapping_function_t mapping_function)
         {
             CCZ4Diff2Vars<data_t>::enum_mapping(mapping_function);
-            //MatterDiff2Vars<data_t>::enum_mapping(mapping_function);
+            // MatterDiff2Vars<data_t>::enum_mapping(mapping_function);
         }
     };
 
@@ -89,8 +89,8 @@ class FluidCCZ4RHS : public CCZ4RHS<gauge_t, deriv_t>
        one by default.
     */
     FluidCCZ4RHS(matter_t a_matter, params_t a_params, double a_dx,
-                  double a_sigma, int a_formulation = CCZ4RHS<>::USE_CCZ4,
-                  double a_G_Newton = 1.0);
+                 double a_sigma, int a_formulation = CCZ4RHS<>::USE_CCZ4,
+                 double a_G_Newton = 1.0);
 
     //!  The compute member which calculates the RHS at each point in the box
     //!  \sa matter_rhs_equation()
