@@ -78,9 +78,25 @@ void PerfectFluid<eos_t>::add_matter_rhs(
 
     vars_t<data_t> source = Sources::compute_source(vars, d1);
     // evolution equations for the fluid conservative variables
-    rhs.D = source.D;
-    FOR(i) rhs.Sj[i] = source.Sj[i];
-    rhs.tau = source.tau;
+    data_t divshift = TensorAlgebra::compute_trace(d1.shift);
+    data_t chi_regularised = simd_max(vars.chi, 1e-6);
+    data_t advec_chi = 0.;
+    FOR(i) advec_chi += vars.shift[i] * d1.chi[i] / chi_regularised;
+    // source - vars * \partial_t\sqrt{\gamma}/\sqrt{\gamma}
+    rhs.D = source.D - vars.D * (vars.lapse * vars.K
+                    - divshift + GR_SPACEDIM / 2. * advec_chi);
+    FOR(i) rhs.Sj[i] = source.Sj[i] - vars.Sj[i] * (vars.lapse *
+                    vars.K - divshift + GR_SPACEDIM / 2. * advec_chi);
+    rhs.tau = source.tau - vars.tau * (vars.lapse * vars.K
+                    - divshift + GR_SPACEDIM / 2. * advec_chi);
+
+    // - F^i\partial_i\sqrt{\gamma}/\sqrt{\gamma}
+    FOR(i) {
+        vars_t<data_t> flux = Fluxes::compute_flux(vars, i);
+        rhs.D -= GR_SPACEDIM / 2. * d1.chi[i] / chi_regularised * flux.D;
+        FOR(j) rhs.Sj[j] -= GR_SPACEDIM / 2. * d1.chi[i] / chi_regularised * flux.Sj[j];
+        rhs.tau -= GR_SPACEDIM / 2. * d1.chi[i] / chi_regularised * flux.tau;
+    }
 
     FOR(idir)
     {
@@ -90,7 +106,7 @@ void PerfectFluid<eos_t>::add_matter_rhs(
         FOR(j) { vars_right_p.vi[j] = rp.vi[j][idir]; }
         PrimitiveRecovery::PtoC(vars_right_p);
         vars_t<data_t> flux_right_p =
-            Fluxes::compute_flux(vars_right_p, idir, m_lambda);
+            Fluxes::compute_num_flux(vars_right_p, idir, m_lambda);
 
         vars_t<data_t> vars_right_m;
         vars_right_m.rho = rm.rho[idir];
@@ -98,7 +114,7 @@ void PerfectFluid<eos_t>::add_matter_rhs(
         FOR(j) vars_right_m.vi[j] = rm.vi[j][idir];
         PrimitiveRecovery::PtoC(vars_right_m);
         vars_t<data_t> flux_right_m =
-            Fluxes::compute_flux(vars_right_m, idir, m_lambda);
+            Fluxes::compute_num_flux(vars_right_m, idir, m_lambda);
 
         rhs.D += -1. / (2. * m_dx) * (flux_right_p.D + flux_right_m.D);
         FOR(j)
@@ -117,7 +133,7 @@ void PerfectFluid<eos_t>::add_matter_rhs(
         FOR(j) { vars_left_p.vi[j] = lp.vi[j][idir]; }
         PrimitiveRecovery::PtoC(vars_left_p);
         vars_t<data_t> flux_left_p =
-            Fluxes::compute_flux(vars_left_p, idir, m_lambda);
+            Fluxes::compute_num_flux(vars_left_p, idir, m_lambda);
 
         vars_t<data_t> vars_left_m;
         vars_left_m.rho = lm.rho[idir];
@@ -125,7 +141,7 @@ void PerfectFluid<eos_t>::add_matter_rhs(
         FOR(j) { vars_left_m.vi[j] = lm.vi[j][idir]; }
         PrimitiveRecovery::PtoC(vars_left_m);
         vars_t<data_t> flux_left_m =
-            Fluxes::compute_flux(vars_left_m, idir, m_lambda);
+            Fluxes::compute_num_flux(vars_left_m, idir, m_lambda);
 
         rhs.D += 1. / (2. * m_dx) * (flux_left_p.D + flux_left_m.D);
         FOR(j)
