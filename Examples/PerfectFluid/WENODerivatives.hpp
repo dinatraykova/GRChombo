@@ -118,7 +118,7 @@ class WENODerivatives
         sum_alpha = 0.;
         FOR(j)
         {
-            alpha[j] = dd[j] / ((m_eW + beta[j]) * (m_eW + beta[j]));
+            alpha[j] = dd[j] / ((eW + beta[j]) * (eW + beta[j]));
             sum_alpha += alpha[j];
         }
         FOR(j) { weights[j] = alpha[j] / sum_alpha; }
@@ -158,9 +158,6 @@ class WENODerivatives
             get_Pface<data_t>(current_cell.get_box_pointers().m_in_ptr[ivar],
                               in_index, stride, dir_switch);
     }
-
-  protected:
-    double m_eW;
 };
 
 #endif /* WENODERIVATIVES_HPP_ */
