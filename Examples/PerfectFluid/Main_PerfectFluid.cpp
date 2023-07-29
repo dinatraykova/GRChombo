@@ -38,7 +38,7 @@ int runGRChombo(int argc, char *argv[])
     // and an associated LevelFactory)
     GRAMR gr_amr;
     DefaultLevelFactory<PerfectFluidLevel> perfect_fluid_level_fact(gr_amr,
-                                                                  sim_params);
+                                                                    sim_params);
     setupAMRObject(gr_amr, perfect_fluid_level_fact);
 
     // Engage! Run the evolution

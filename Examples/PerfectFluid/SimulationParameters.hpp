@@ -11,9 +11,9 @@
 #include "SimulationParametersBase.hpp"
 
 // Problem specific includes:
+#include "EoS.hpp"
 #include "InitialFluidData.hpp"
 #include "Minkowski.hpp"
-#include "EoS.hpp"
 
 class SimulationParameters : public SimulationParametersBase
 {
@@ -32,14 +32,14 @@ class SimulationParameters : public SimulationParametersBase
             center; // already read in SimulationParametersBase
         pp.load("G_Newton", G_Newton,
                 0.0); // for now the example neglects backreaction
-	pp.load("fluid_rho", initial_params.rho0, 1.0);
-	pp.load("fluid_uflow", initial_params.uflow, 1./(4.*sqrt(3)));
-	pp.load("fluid_amplitude", initial_params.amplitude, 0.01);
-	pp.load("fluid_awidth", initial_params.awidth, 0.05);
-	pp.load("fluid_sigma", initial_params.sigma, 0.2);
-	pp.load("fluid_ycenter", initial_params.ycenter, {-0.5,0.5});
-	pp.load("lambda", lambda, 1.); //eigenvalue for numerical flux
-        pp.load("eos_w", eos_params.eos_w, 1./3.);
+        pp.load("fluid_rho", initial_params.rho0, 1.0);
+        pp.load("fluid_uflow", initial_params.uflow, 1. / (4. * sqrt(3)));
+        pp.load("fluid_amplitude", initial_params.amplitude, 0.01);
+        pp.load("fluid_awidth", initial_params.awidth, 0.05);
+        pp.load("fluid_sigma", initial_params.sigma, 0.2);
+        pp.load("fluid_ycenter", initial_params.ycenter, {-0.5, 0.5});
+        pp.load("lambda", lambda, 1.); // eigenvalue for numerical flux
+        pp.load("eos_w", eos_params.eos_w, 1. / 3.);
 
         // Initial Kerr data
         pp.load("kerr_mass", kerr_params.mass, 1.0);
@@ -49,14 +49,14 @@ class SimulationParameters : public SimulationParametersBase
 
     void check_params()
     {
-      //        warn_parameter("scalar_mass", potential_params.scalar_mass,
-      //                potential_params.scalar_mass <
-      //                   0.2 / coarsest_dx / dt_multiplier,
-      //               "oscillations of scalar field do not appear to be "
-      //               "resolved on coarsest level");
-      //warn_parameter("scalar_width", initial_params.width,
-      //               initial_params.width < 0.5 * L,
-      //               "is greater than half the domain size");
+        //        warn_parameter("scalar_mass", potential_params.scalar_mass,
+        //                potential_params.scalar_mass <
+        //                   0.2 / coarsest_dx / dt_multiplier,
+        //               "oscillations of scalar field do not appear to be "
+        //               "resolved on coarsest level");
+        // warn_parameter("scalar_width", initial_params.width,
+        //               initial_params.width < 0.5 * L,
+        //               "is greater than half the domain size");
         warn_parameter("kerr_mass", kerr_params.mass, kerr_params.mass >= 0.0,
                        "should be >= 0.0");
         check_parameter("kerr_spin", kerr_params.spin,

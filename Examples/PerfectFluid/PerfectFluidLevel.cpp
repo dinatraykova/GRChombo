@@ -9,8 +9,8 @@
 #include "NanCheck.hpp"
 #include "PositiveChiAndAlpha.hpp"
 #include "SixthOrderDerivatives.hpp"
-#include "WENODerivatives.hpp"
 #include "TraceARemoval.hpp"
+#include "WENODerivatives.hpp"
 
 // For RHS update
 #include "FluidCCZ4RHS.hpp"
@@ -23,10 +23,10 @@
 
 // Problem specific includes
 #include "ComputePack.hpp"
+#include "EoS.hpp"
 #include "GammaCalculator.hpp"
 #include "InitialFluidData.hpp"
 #include "Minkowski.hpp"
-#include "EoS.hpp"
 #include "PerfectFluid.hpp"
 #include "SetValue.hpp"
 
@@ -55,7 +55,7 @@ void PerfectFluidLevel::initialData()
     // First set everything to zero then initial conditions for scalar field -
     // here a Kerr BH and a scalar field profile
     //    EoS eos(m_p.eos_params);
-    //PerfectFluidEoS perfect_fluid(eos);
+    // PerfectFluidEoS perfect_fluid(eos);
     BoxLoops::loop(
         make_compute_pack(SetValue(0.), Minkowski(m_p.kerr_params, m_dx),
                           InitialFluidData(m_p.initial_params, m_dx)),
@@ -73,16 +73,16 @@ void PerfectFluidLevel::prePlotLevel()
     fillAllGhosts();
     EoS eos(m_p.eos_params);
     PerfectFluidEoS perfect_fluid(m_dx, m_p.lambda, eos);
-    BoxLoops::loop(
-        MatterConstraints<PerfectFluidEoS>(
-            perfect_fluid, m_dx, m_p.G_Newton, c_Ham, Interval(c_Mom, c_Mom)),
-        m_state_new, m_state_diagnostics, EXCLUDE_GHOST_CELLS);
+    BoxLoops::loop(MatterConstraints<PerfectFluidEoS>(perfect_fluid, m_dx,
+                                                      m_p.G_Newton, c_Ham,
+                                                      Interval(c_Mom, c_Mom)),
+                   m_state_new, m_state_diagnostics, EXCLUDE_GHOST_CELLS);
 }
 #endif
 
 // Things to do in RHS update, at each RK4 step
 void PerfectFluidLevel::specificEvalRHS(GRLevelData &a_soln, GRLevelData &a_rhs,
-                                       const double a_time)
+                                        const double a_time)
 {
     // Enforce trace free A_ij and positive chi and alpha
     BoxLoops::loop(
@@ -96,8 +96,8 @@ void PerfectFluidLevel::specificEvalRHS(GRLevelData &a_soln, GRLevelData &a_rhs,
     if (m_p.max_spatial_derivative_order == 4)
     {
         FluidCCZ4RHS<PerfectFluidEoS, MovingPunctureGauge,
-		     	     FourthOrderDerivatives, WENODerivatives>
-	  //FourthOrderDerivatives>
+                     FourthOrderDerivatives, WENODerivatives>
+            // FourthOrderDerivatives>
             my_ccz4_matter(perfect_fluid, m_p.ccz4_params, m_dx, m_p.sigma,
                            m_p.formulation, m_p.G_Newton);
         BoxLoops::loop(my_ccz4_matter, a_soln, a_rhs, EXCLUDE_GHOST_CELLS);
@@ -105,8 +105,8 @@ void PerfectFluidLevel::specificEvalRHS(GRLevelData &a_soln, GRLevelData &a_rhs,
     else if (m_p.max_spatial_derivative_order == 6)
     {
         FluidCCZ4RHS<PerfectFluidEoS, MovingPunctureGauge,
-		     SixthOrderDerivatives, WENODerivatives>
-	  //FourthOrderDerivatives>
+                     SixthOrderDerivatives, WENODerivatives>
+            // FourthOrderDerivatives>
             my_ccz4_matter(perfect_fluid, m_p.ccz4_params, m_dx, m_p.sigma,
                            m_p.formulation, m_p.G_Newton);
         BoxLoops::loop(my_ccz4_matter, a_soln, a_rhs, EXCLUDE_GHOST_CELLS);
@@ -115,7 +115,7 @@ void PerfectFluidLevel::specificEvalRHS(GRLevelData &a_soln, GRLevelData &a_rhs,
 
 // Things to do at ODE update, after soln + rhs
 void PerfectFluidLevel::specificUpdateODE(GRLevelData &a_soln,
-                                         const GRLevelData &a_rhs, Real a_dt)
+                                          const GRLevelData &a_rhs, Real a_dt)
 {
     // Enforce trace free A_ij
     BoxLoops::loop(TraceARemoval(), a_soln, a_soln, INCLUDE_GHOST_CELLS);
@@ -128,9 +128,8 @@ void PerfectFluidLevel::preTagCells()
 }
 
 void PerfectFluidLevel::computeTaggingCriterion(FArrayBox &tagging_criterion,
-                                               const FArrayBox &current_state)
+                                                const FArrayBox &current_state)
 {
-    BoxLoops::loop(
-        FixedGridsTaggingCriterion(m_dx, m_level, m_p.L, m_p.center),
-        current_state, tagging_criterion);
+    BoxLoops::loop(FixedGridsTaggingCriterion(m_dx, m_level, m_p.L, m_p.center),
+                   current_state, tagging_criterion);
 }

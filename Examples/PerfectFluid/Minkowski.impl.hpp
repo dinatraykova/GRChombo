@@ -50,7 +50,7 @@ template <class data_t> void Minkowski::compute(Cell<data_t> current_cell) const
 
     // transform extrinsic curvature into A and TrK - note h is still non
     // conformal version which is what we need here
-    vars.K = 0.0; //compute_trace(vars.A, h_UU);
+    vars.K = 0.0; // compute_trace(vars.A, h_UU);
     make_trace_free(vars.A, vars.h, h_UU);
 
     // Make conformal
@@ -73,10 +73,10 @@ template <class data_t> void Minkowski::compute(Cell<data_t> current_cell) const
 
 template <class data_t>
 void Minkowski::compute_kerr(Tensor<2, data_t> &spherical_g,
-                          Tensor<2, data_t> &spherical_K,
-                          Tensor<1, data_t> &spherical_shift,
-                          data_t &kerr_lapse,
-                          const Coordinates<data_t> coords) const
+                             Tensor<2, data_t> &spherical_K,
+                             Tensor<1, data_t> &spherical_shift,
+                             data_t &kerr_lapse,
+                             const Coordinates<data_t> coords) const
 {
     // Kerr black hole params - mass M and spin a
     double M = m_params.mass;
@@ -128,16 +128,17 @@ void Minkowski::compute_kerr(Tensor<2, data_t> &spherical_g,
     FOR(i, j) { spherical_K[i][j] = 0.0; }
 
     // set non zero elements of Krtp - K_rp, K_tp
-    //spherical_K[0][2] =
+    // spherical_K[0][2] =
     //  a * M * sin_theta2 / (Sigma * sqrt(AA * Sigma)) *
     //  (3.0 * pow(r_BL, 4.0) + 2 * a * a * r_BL * r_BL - pow(a, 4.0) -
     //   a * a * (r_BL * r_BL - a * a) * sin_theta2) *
     //  (1.0 + 0.25 * r_plus / r) / sqrt(r * r_BL - r * r_minus);
-    //spherical_K[2][0] = spherical_K[0][2];
-    //spherical_K[2][1] = -2.0 * pow(a, 3.0) * M * r_BL * cos_theta * sin_theta *
+    // spherical_K[2][0] = spherical_K[0][2];
+    // spherical_K[2][1] = -2.0 * pow(a, 3.0) * M * r_BL * cos_theta * sin_theta
+    // *
     //                    sin_theta2 / (Sigma * sqrt(AA * Sigma)) *
     //                    (r - 0.25 * r_plus) * sqrt(r_BL / r - r_minus / r);
-    //spherical_K[1][2] = spherical_K[2][1];
+    // spherical_K[1][2] = spherical_K[2][1];
 
     // set the analytic lapse
     kerr_lapse = sqrt(Delta * Sigma / AA);
