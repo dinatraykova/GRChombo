@@ -83,18 +83,22 @@ void PerfectFluid<eos_t>::add_matter_rhs(
     data_t advec_chi = 0.;
     FOR(i) advec_chi += vars.shift[i] * d1.chi[i] / chi_regularised;
     // source - vars * \partial_t\sqrt{\gamma}/\sqrt{\gamma}
-    rhs.D = source.D - vars.D * (vars.lapse * vars.K
-                    - divshift + GR_SPACEDIM / 2. * advec_chi);
-    FOR(i) rhs.Sj[i] = source.Sj[i] - vars.Sj[i] * (vars.lapse *
-                    vars.K - divshift + GR_SPACEDIM / 2. * advec_chi);
-    rhs.tau = source.tau - vars.tau * (vars.lapse * vars.K
-                    - divshift + GR_SPACEDIM / 2. * advec_chi);
+    rhs.D = source.D - vars.D * (vars.lapse * vars.K - divshift +
+                                 GR_SPACEDIM / 2. * advec_chi);
+    FOR(i)
+    rhs.Sj[i] = source.Sj[i] - vars.Sj[i] * (vars.lapse * vars.K - divshift +
+                                             GR_SPACEDIM / 2. * advec_chi);
+    rhs.tau = source.tau - vars.tau * (vars.lapse * vars.K - divshift +
+                                       GR_SPACEDIM / 2. * advec_chi);
 
     // - F^i\partial_i\sqrt{\gamma}/\sqrt{\gamma}
-    FOR(i) {
+    FOR(i)
+    {
         vars_t<data_t> flux = Fluxes::compute_flux(vars, i);
         rhs.D -= GR_SPACEDIM / 2. * d1.chi[i] / chi_regularised * flux.D;
-        FOR(j) rhs.Sj[j] -= GR_SPACEDIM / 2. * d1.chi[i] / chi_regularised * flux.Sj[j];
+        FOR(j)
+        rhs.Sj[j] -=
+            GR_SPACEDIM / 2. * d1.chi[i] / chi_regularised * flux.Sj[j];
         rhs.tau -= GR_SPACEDIM / 2. * d1.chi[i] / chi_regularised * flux.tau;
     }
 
