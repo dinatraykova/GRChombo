@@ -8,6 +8,7 @@
 #include "BoxLoops.hpp"
 #include "NanCheck.hpp"
 #include "PositiveChiAndAlpha.hpp"
+#include "PrimitiveRecovery.hpp"
 #include "SixthOrderDerivatives.hpp"
 #include "TraceARemoval.hpp"
 #include "WENODerivatives.hpp"
@@ -86,7 +87,7 @@ void PerfectFluidLevel::specificEvalRHS(GRLevelData &a_soln, GRLevelData &a_rhs,
 {
     // Enforce trace free A_ij and positive chi and alpha
     BoxLoops::loop(
-        make_compute_pack(TraceARemoval(),
+        make_compute_pack(TraceARemoval(), PrimitiveRecovery(),
                           PositiveChiAndAlpha(m_p.min_chi, m_p.min_lapse)),
         a_soln, a_soln, INCLUDE_GHOST_CELLS);
 
@@ -118,7 +119,8 @@ void PerfectFluidLevel::specificUpdateODE(GRLevelData &a_soln,
                                           const GRLevelData &a_rhs, Real a_dt)
 {
     // Enforce trace free A_ij
-    BoxLoops::loop(TraceARemoval(), a_soln, a_soln, INCLUDE_GHOST_CELLS);
+    BoxLoops::loop(make_compute_pack(TraceARemoval(), PrimitiveRecovery()),
+                   a_soln, a_soln, INCLUDE_GHOST_CELLS);
 }
 
 void PerfectFluidLevel::preTagCells()

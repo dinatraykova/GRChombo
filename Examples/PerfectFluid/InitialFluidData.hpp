@@ -11,7 +11,6 @@
 #include "Coordinates.hpp"
 #include "FluidCCZ4RHS.hpp"
 #include "PerfectFluid.hpp"
-#include "PrimitiveRecovery.hpp"
 #include "Tensor.hpp"
 #include "UserVariables.hpp" //This files needs NUM_VARS - total no. components
 #include "VarsTools.hpp"

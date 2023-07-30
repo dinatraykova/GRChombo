@@ -7,11 +7,11 @@
 #define PERFECTFLUID_HPP_
 
 #include "CCZ4Geometry.hpp"
+#include "ConservativeRecovery.hpp"
 #include "DefaultEoS.hpp"
 #include "DimensionDefinitions.hpp"
 #include "Fluxes.hpp"
 #include "FourthOrderDerivatives.hpp"
-#include "PrimitiveRecovery.hpp"
 #include "Sources.hpp"
 #include "Tensor.hpp"
 #include "TensorAlgebra.hpp"
