@@ -56,12 +56,12 @@ vars_t<data_t> compute_flux(const vars_t<data_t> &vars, const int idir)
 }
 template <class data_t, template <typename> class vars_t>
 vars_t<data_t> compute_num_flux(const vars_t<data_t> &vars, const int idir,
-                                const double lambda)
+                                const double lambda, const int sign)
 {
     vars_t<data_t> out = compute_flux(vars, idir);
-    out.D -= lambda * vars.D;
-    FOR(j) out.Sj[j] -= lambda * vars.Sj[j];
-    out.tau -= lambda * vars.tau;
+    out.D += sign * lambda * vars.D;
+    FOR(j) out.Sj[j] += sign * lambda * vars.Sj[j];
+    out.tau += sign * lambda * vars.tau;
     return out;
 }
 
