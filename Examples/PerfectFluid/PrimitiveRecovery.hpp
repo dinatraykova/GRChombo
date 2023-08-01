@@ -43,12 +43,12 @@ class PrimitiveRecovery
 
         // eps
         vars.eps =
-            sqrt2 / (sqrt(2.) * vars.D) - 1.; // Is it dangerous to divide by D?
+            sqrt2 / (2. * vars.D) - 1.; // Is it dangerous to divide by D?
         // rho
         vars.rho = (sqrt1 - E) / (1. + vars.eps);
         // vi_D
         Tensor<1, data_t> vi_D;
-        FOR(i) vi_D[i] = 3. / 2. * vars.Sj[i] * (sqrt1 - E) / (sqrt2 * sqrt2);
+        FOR(i) vi_D[i] = 3. * vars.Sj[i] * (sqrt1 - E) / (sqrt2 * sqrt2);
         // vi
         FOR(i)
         {

@@ -51,7 +51,7 @@ class InitialFluidData
         // where am i?
         Coordinates<data_t> coords(current_cell, m_dx, m_params.center);
 
-        MetricVars<data_t> metric_vars;
+        const auto metric_vars = current_cell.template load_vars<MetricVars>();
 
         data_t x = coords.x;
         double y = coords.y;
@@ -82,7 +82,13 @@ class InitialFluidData
 
         data_t D = rho * sqrt(WW);
         data_t tau = rho * hh * WW - P - D;
-        FOR(i) Sj[i] = rho * hh * WW * vi[i];
+        FOR(i)
+        {
+            Sj[i] = 0.;
+            FOR(j)
+            Sj[i] +=
+                rho * hh * WW * metric_vars.h[i][j] * vi[j] / chi_regularised;
+        }
 
         // store the vars
         current_cell.store_vars(rho, c_rho);

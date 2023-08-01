@@ -62,4 +62,4 @@ vars_t<data_t> compute_source(const vars_t<data_t> &vars,
 }
 
 } // namespace Sources
-#endif /* FLUXES_HPP_ */
+#endif /* SOURCES_HPP_ */

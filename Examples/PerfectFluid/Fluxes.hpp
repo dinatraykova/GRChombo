@@ -22,7 +22,7 @@ vars_t<data_t> compute_flux(const vars_t<data_t> &vars, const int idir)
     Tensor<1, data_t> Sj_U;
     FOR(i)
     {
-        Sj_U[i] = 0;
+        Sj_U[i] = 0.;
         FOR(j) Sj_U[i] += vars.chi * h_UU[i][j] * vars.Sj[j];
     }
 

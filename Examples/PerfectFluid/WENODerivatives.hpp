@@ -135,14 +135,16 @@ class WENODerivatives
         const auto in_index = current_cell.get_in_index();
         const auto strides = current_cell.get_box_pointers().m_in_stride;
         vars_t<Tensor<1, data_t>> d1;
-        d1.enum_mapping([&](const int &ivar, Tensor<1, data_t> &var) {
-            FOR(idir)
+        d1.enum_mapping(
+            [&](const int &ivar, Tensor<1, data_t> &var)
             {
-                var[idir] = get_Pface<data_t>(
-                    current_cell.get_box_pointers().m_in_ptr[ivar], in_index,
-                    strides[idir], dir_switch);
-            }
-        });
+                FOR(idir)
+                {
+                    var[idir] = get_Pface<data_t>(
+                        current_cell.get_box_pointers().m_in_ptr[ivar],
+                        in_index, strides[idir], dir_switch);
+                }
+            });
         return d1;
     }
 
