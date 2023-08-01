@@ -105,17 +105,17 @@ void PerfectFluid<eos_t>::add_matter_rhs(
     FOR(idir)
     {
         vars_t<data_t> vars_right_p = vars;
-        // vars_right_p.rho = rp.rho[idir];
-        // vars_right_p.eps = rp.eps[idir];
-        // FOR(j) { vars_right_p.vi[j] = rp.vi[j][idir]; }
+        vars_right_p.rho = rp.rho[idir];
+        vars_right_p.eps = rp.eps[idir];
+        FOR(j) { vars_right_p.vi[j] = rp.vi[j][idir]; }
         ConservativeRecovery::PtoC(vars_right_p);
         vars_t<data_t> flux_right_p =
             Fluxes::compute_num_flux(vars_right_p, idir, m_lambda);
 
         vars_t<data_t> vars_right_m = vars;
-        // vars_right_m.rho = rm.rho[idir];
-        // vars_right_m.eps = rm.eps[idir];
-        // FOR(j) vars_right_m.vi[j] = rm.vi[j][idir];
+        vars_right_m.rho = rm.rho[idir];
+        vars_right_m.eps = rm.eps[idir];
+        FOR(j) vars_right_m.vi[j] = rm.vi[j][idir];
         ConservativeRecovery::PtoC(vars_right_m);
         vars_t<data_t> flux_right_m =
             Fluxes::compute_num_flux(vars_right_m, idir, m_lambda);
@@ -132,17 +132,17 @@ void PerfectFluid<eos_t>::add_matter_rhs(
     FOR(idir)
     {
         vars_t<data_t> vars_left_p = vars;
-        // vars_left_p.rho = lp.rho[idir];
-        // vars_left_p.eps = lp.eps[idir];
-        // FOR(j) { vars_left_p.vi[j] = lp.vi[j][idir]; }
+        vars_left_p.rho = lp.rho[idir];
+        vars_left_p.eps = lp.eps[idir];
+        FOR(j) { vars_left_p.vi[j] = lp.vi[j][idir]; }
         ConservativeRecovery::PtoC(vars_left_p);
         vars_t<data_t> flux_left_p =
             Fluxes::compute_num_flux(vars_left_p, idir, m_lambda);
 
         vars_t<data_t> vars_left_m = vars;
-        // vars_left_m.rho = lm.rho[idir];
-        // vars_left_m.eps = lm.eps[idir];
-        // FOR(j) { vars_left_m.vi[j] = lm.vi[j][idir]; }
+        vars_left_m.rho = lm.rho[idir];
+        vars_left_m.eps = lm.eps[idir];
+        FOR(j) { vars_left_m.vi[j] = lm.vi[j][idir]; }
         ConservativeRecovery::PtoC(vars_left_m);
         vars_t<data_t> flux_left_m =
             Fluxes::compute_num_flux(vars_left_m, idir, m_lambda);
