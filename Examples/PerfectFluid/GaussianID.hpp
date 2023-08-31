@@ -31,13 +31,9 @@ class InitialFluidData
     {
         std::array<double, CH_SPACEDIM>
             center; //!< Centre of perturbation in initial SF bubble
-        double L;
         double rho0;
-        double uflow;
-        double amplitude;
         double awidth;
-        double asigma;
-        std::array<double, 2> ycenter;
+        double delta;
     };
 
     //! The constructor
@@ -51,6 +47,8 @@ class InitialFluidData
     {
         // where am i?
         Coordinates<data_t> coords(current_cell, m_dx, m_params.center);
+        data_t rr = coords.get_radius();
+        data_t rr2 = rr * rr;
 
         const auto metric_vars = current_cell.template load_vars<MetricVars>();
 
@@ -61,22 +59,16 @@ class InitialFluidData
         Tensor<1, data_t> vi, Sj;
         data_t chi_regularised = simd_max(metric_vars.chi, 1e-6);
 
-        vi[0] = m_params.uflow *
-                (tanh((y - m_params.ycenter[0]) / m_params.awidth) -
-                 tanh((y - m_params.ycenter[1]) / m_params.awidth) - 1.);
-        vi[1] = m_params.amplitude * sin(2. * M_PI * x / m_params.L) *
-                (exp(-pow((y - m_params.ycenter[0]) / m_params.asigma, 2)) +
-                 exp(-pow((y - m_params.ycenter[1]) / m_params.asigma, 2)));
+        vi[0] = 0.;
+        vi[1] = 0.;
         vi[2] = 0.;
 
-        data_t nn =
-            1. + 0.5 * (tanh((y - m_params.ycenter[0]) / m_params.awidth) -
-                        tanh((y - m_params.ycenter[1]) / m_params.awidth));
-        data_t eps = 0.;
-
-        data_t rho = m_params.rho0;
+        // calculate the field value
+        data_t rho = m_params.rho0 * (exp(-pow(rr / m_params.awidth, 2.0))) +
+                     m_params.delta;
         data_t v2 = 0.;
         FOR(i, j) v2 += metric_vars.h[i][j] * vi[i] * vi[j] / chi_regularised;
+        data_t eps = 0.;
         data_t P = rho * (1. + eps) / 3.;
         data_t WW = 1. / (1. - v2);
         data_t hh = 1. + eps + P / rho;
