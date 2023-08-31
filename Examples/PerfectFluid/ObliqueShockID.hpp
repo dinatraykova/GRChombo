@@ -31,9 +31,12 @@ class InitialFluidData
     {
         std::array<double, CH_SPACEDIM>
             center; //!< Centre of perturbation in initial SF bubble
-        double rho0;
-        double delta;
-        double width; //!< Width of bump in initial SF bubble
+        double emax;
+        double emin;
+        double vx_in;
+        double vy_in;
+        double nn_in;
+        double L;
     };
 
     //! The constructor
@@ -47,8 +50,6 @@ class InitialFluidData
     {
         // where am i?
         Coordinates<data_t> coords(current_cell, m_dx, m_params.center);
-        data_t rr = coords.get_radius();
-        data_t rr2 = rr * rr;
 
         const auto metric_vars = current_cell.template load_vars<MetricVars>();
 
@@ -56,26 +57,57 @@ class InitialFluidData
         double y = coords.y;
         double z = coords.z;
 
-        Tensor<1, data_t> vi, Sj;
+        const double gamma = 10.;
+        double one_o_gamma = 1. / gamma;
+        const double delta = 10.;
+        data_t de, dvx, dvy, dn;
+        data_t x_p_L, x_m_L;
+        double y_p_L, y_m_L;
+
         data_t chi_regularised = simd_max(metric_vars.chi, 1e-6);
 
-        vi[0] = 0.;
-        vi[1] = 0.;
+        // Transition function
+        // template <class data_t>
+        // data_t transD(data_t d, double delta)
+        //{
+        //  return 0.5*(1.+tanh(d/delta));
+        //}
+
+        // data_t rho = m_params.emax - m_params.emin*transD(de,delta);
+        data_t rho =
+            m_params.emax - m_params.emin * 0.5 * (1. + tanh(de / delta));
+        x_p_L = pow(x + m_params.L, gamma);
+        x_m_L = pow(x - m_params.L, gamma);
+        y_p_L = pow(y + m_params.L, gamma);
+        y_m_L = pow(y - m_params.L, gamma);
+
+        de = m_params.L - pow(x_m_L + y_m_L, one_o_gamma);
+        dvx = m_params.L - pow(x_p_L + y_m_L, one_o_gamma);
+        dvy = m_params.L - pow(x_m_L + y_p_L, one_o_gamma);
+        dn = m_params.L - pow(x_p_L + y_p_L, one_o_gamma);
+
+        Tensor<1, data_t> vi;
+        // vi[0] = m_params.vx_in*transD(dvx,delta);;
+        vi[0] = m_params.vx_in * 0.5 * (1. + tanh(dvx / delta));
+        // vi[1] = m_params.vy_in*transD(dvy,delta);;
+        vi[1] = m_params.vy_in * 0.5 * (1. + tanh(dvy / delta));
         vi[2] = 0.;
 
-        // calculate the field value
-        data_t rho0 =
-            m_params.amplitude * (exp(-pow(rr / m_params.width, 2.0))) +
-            m_params.delta;
+        // data_t nn = m_params.nn_in*transD(dn,delta) + 0.1;
+        data_t nn = m_params.nn_in * 0.5 * (1. + tanh(dn / delta)) + 0.1;
+
+        data_t eps = 0.;
         data_t v2 = 0.;
         FOR(i, j) v2 += metric_vars.h[i][j] * vi[i] * vi[j] / chi_regularised;
-        data_t eps = 0.;
-        data_t P = rho0 * (1. + eps) / 3.;
+
+        data_t P = rho * (1. + eps) / 3.;
         data_t WW = 1. / (1. - v2);
-        data_t hh = 1. + eps + P / rho0;
+        data_t hh = 1. + eps + P / rho;
 
         data_t D = rho * sqrt(WW);
         data_t tau = rho * hh * WW - P - D;
+
+        Tensor<1, data_t> Sj;
         FOR(i)
         {
             Sj[i] = 0.;
