@@ -66,16 +66,6 @@ class InitialFluidData
 
         data_t chi_regularised = simd_max(metric_vars.chi, 1e-6);
 
-        // Transition function
-        // template <class data_t>
-        // data_t transD(data_t d, double delta)
-        //{
-        //  return 0.5*(1.+tanh(d/delta));
-        //}
-
-        // data_t rho = m_params.emax - m_params.emin*transD(de,delta);
-        data_t rho =
-            m_params.emax - m_params.emin * 0.5 * (1. + tanh(de / delta));
         x_p_L = pow(x + m_params.L, gamma);
         x_m_L = pow(x - m_params.L, gamma);
         y_p_L = pow(y + m_params.L, gamma);
@@ -86,14 +76,14 @@ class InitialFluidData
         dvy = m_params.L - pow(x_m_L + y_p_L, one_o_gamma);
         dn = m_params.L - pow(x_p_L + y_p_L, one_o_gamma);
 
+        data_t rho =
+            m_params.emax - m_params.emin * 0.5 * (1. + tanh(de / delta));
+
         Tensor<1, data_t> vi;
-        // vi[0] = m_params.vx_in*transD(dvx,delta);;
         vi[0] = m_params.vx_in * 0.5 * (1. + tanh(dvx / delta));
-        // vi[1] = m_params.vy_in*transD(dvy,delta);;
         vi[1] = m_params.vy_in * 0.5 * (1. + tanh(dvy / delta));
         vi[2] = 0.;
 
-        // data_t nn = m_params.nn_in*transD(dn,delta) + 0.1;
         data_t nn = m_params.nn_in * 0.5 * (1. + tanh(dn / delta)) + 0.1;
 
         data_t eps = 0.;

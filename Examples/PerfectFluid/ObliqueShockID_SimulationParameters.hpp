@@ -37,7 +37,7 @@ class SimulationParameters : public SimulationParametersBase
         pp.load("fluid_emin", initial_params.emin, 2.97);
         pp.load("fluid_vx_in", initial_params.vx_in, 0.97);
         pp.load("fluid_vy_in", initial_params.vy_in, 0.97);
-        pp.load("fluid_nn_in", initial_params.nn_in, 0.2);
+        pp.load("fluid_nn_in", initial_params.nn_in, 0.5);
         pp.load("lambda", lambda, 1.); // eigenvalue for numerical flux
         pp.load("eos_w", eos_params.eos_w, 1. / 3.);
 
