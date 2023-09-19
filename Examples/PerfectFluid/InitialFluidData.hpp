@@ -58,7 +58,7 @@ class InitialFluidData
         double y = coords.y;
         double z = coords.z;
 
-        Tensor<1, data_t> vi, Sj;
+        Tensor<1, data_t> vi, Sj; // Flow velocity, covariant momentum
         data_t chi_regularised = simd_max(metric_vars.chi, 1e-6);
 
         vi[0] = m_params.uflow *
@@ -69,34 +69,43 @@ class InitialFluidData
                  exp(-pow((y - m_params.ycenter[1]) / m_params.asigma, 2)));
         vi[2] = 0.;
 
+        // number density
         data_t nn =
             1. + 0.5 * (tanh((y - m_params.ycenter[0]) / m_params.awidth) -
                         tanh((y - m_params.ycenter[1]) / m_params.awidth));
-        data_t eps = 0.;
 
+        // For a conformal fluid rest-mass density = energy densty
         data_t rho = m_params.rho0;
+
         data_t v2 = 0.;
         FOR(i, j) v2 += metric_vars.h[i][j] * vi[i] * vi[j] / chi_regularised;
-        data_t P = rho * (1. + eps) / 3.;
-        data_t WW = 1. / (1. - v2);
-        data_t hh = 1. + eps + P / rho;
+        data_t P = rho / 3.; // pressure
+        data_t W2 = 1. / (1. - v2);
+        data_t hh =
+            4. /
+            3.; // specific enthalpy = 1. + vareps + Poverrho, conf. fl vareps=0
 
-        data_t D = rho * sqrt(WW);
-        data_t tau = rho * hh * WW - P - D;
+        data_t D = rho * sqrt(W2); // conserved rest-mass density
+        data_t tau = rho * hh * W2 - P - D;
         FOR(i)
         {
             Sj[i] = 0.;
             FOR(j)
             Sj[i] +=
-                rho * hh * WW * metric_vars.h[i][j] * vi[j] / chi_regularised;
+                rho * hh * W2 * metric_vars.h[i][j] * vi[j] / chi_regularised;
         }
 
+        data_t Jt = nn * sqrt(1. + v2);
+
         // store the vars
+
         current_cell.store_vars(rho, c_rho);
         current_cell.store_vars(vi, GRInterval<c_vi1, c_vi3>());
         current_cell.store_vars(D, c_D);
         current_cell.store_vars(Sj, GRInterval<c_Sj1, c_Sj3>());
         current_cell.store_vars(tau, c_tau);
+        current_cell.store_vars(nn, c_nn);
+        current_cell.store_vars(Jt, c_Jt);
     }
 
   protected:

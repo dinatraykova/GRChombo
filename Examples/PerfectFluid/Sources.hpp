@@ -22,13 +22,14 @@ vars_t<data_t> compute_source(const vars_t<data_t> &vars,
     const auto h_UU = TensorAlgebra::compute_inverse_sym(vars.h);
     vars_t<data_t> out;
 
+    double vareps = 0.;
+
     data_t v2 = 0.;
     FOR(i, j) v2 += vars.h[i][j] * vars.vi[j] * vars.vi[i] / chi_regularised;
 
-    data_t P =
-        vars.rho * (1. + vars.eps) / 3.; // for now we assume a conformal fluid
+    data_t P = vars.rho / 3.; // for now we assume a conformal fluid
     data_t WW = 1. / (1. - v2);
-    data_t hh = 1. + vars.eps + P / vars.rho;
+    data_t hh = 1. + vareps + P / vars.rho;
 
     out.D = 0.;
     FOR(j)
@@ -57,6 +58,7 @@ vars_t<data_t> compute_source(const vars_t<data_t> &vars,
                         P * h_UU[i][j]) -
                    vars.chi * h_UU[i][j] * vars.Sj[i] * d1.lapse[j];
     }
+    // out.Jt = 0.;
 
     return out;
 }

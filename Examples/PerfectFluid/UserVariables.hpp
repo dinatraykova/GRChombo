@@ -21,11 +21,12 @@ enum
     c_Sj2,
     c_Sj3,
     c_tau,
+    c_Jt,
     c_vi1,
     c_vi2,
     c_vi3,
     c_rho,
-    c_eps,
+    c_nn,
 
     NUM_VARS
 };
@@ -33,8 +34,8 @@ enum
 namespace UserVariables
 {
 static const std::array<std::string, NUM_VARS - NUM_CCZ4_VARS>
-    user_variable_names = {"D",   "Sj1", "Sj2", "Sj3", "tau",
-                           "vi1", "vi2", "vi3", "rho", "eps"};
+    user_variable_names = {"D",   "Sj1", "Sj2", "Sj3", "tau", "Jt",
+                           "vi1", "vi2", "vi3", "rho", "nn"};
 
 static const std::array<std::string, NUM_VARS> variable_names =
     ArrayTools::concatenate(ccz4_variable_names, user_variable_names);

@@ -37,10 +37,11 @@ vars_t<data_t> compute_flux(const vars_t<data_t> &vars, const int idir)
     data_t v2 = 0.;
     FOR(i) v2 += vars.vi[i] * vi_D[i];
 
+    double vareps = 0.;
     data_t P =
-        vars.rho * (1. + vars.eps) / 3.; // for now we assume a conformal fluid
+        vars.rho * (1. + vareps) / 3.; // for now we assume a conformal fluid
     data_t WW = 1. / (1. - v2);
-    data_t hh = 1. + vars.eps + P / vars.rho;
+    data_t hh = 1. + vareps + P / vars.rho;
 
     FOR(j)
     {
@@ -51,6 +52,7 @@ vars_t<data_t> compute_flux(const vars_t<data_t> &vars, const int idir)
 
     out.tau = vars.lapse * (Sj_U[idir] - vars.D * vars.vi[idir]) -
               vars.shift[idir] * vars.tau;
+    out.Jt = vars.nn * vars.vi[idir]; //*sqrt(WW);
 
     return out;
 }
@@ -62,6 +64,7 @@ vars_t<data_t> compute_num_flux(const vars_t<data_t> &vars, const int idir,
     out.D += sign * lambda * vars.D;
     FOR(j) out.Sj[j] += sign * lambda * vars.Sj[j];
     out.tau += sign * lambda * vars.tau;
+    out.Jt += sign * lambda * vars.Jt;
     return out;
 }
 
