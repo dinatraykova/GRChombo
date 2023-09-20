@@ -20,7 +20,7 @@ class PrimitiveRecovery
     template <class data_t> struct Vars
     {
         Tensor<2, data_t> h;
-        data_t chi, D, tau, rho, nn, Jt;
+        data_t chi, D, tau, rho, eps, nn, Jt;
         Tensor<1, data_t> Sj, vi;
 
         template <typename mapping_function_t>
@@ -42,10 +42,10 @@ class PrimitiveRecovery
         data_t sqrt2 = sqrt(2. * E2 - 3. * S2 + E * sqrt1);
 
         // eps
-        data_t vareps =
+        vars.eps =
             sqrt2 / (2. * vars.D) - 1.; // Is it dangerous to divide by D?
         // rho
-        vars.rho = (sqrt1 - E) / (1. + vareps);
+        vars.rho = (sqrt1 - E) / (1. + vars.eps);
         // vi_D
         Tensor<1, data_t> vi_D;
         FOR(i) vi_D[i] = 3. * vars.Sj[i] * (sqrt1 - E) / (sqrt2 * sqrt2);
@@ -81,6 +81,7 @@ void PrimitiveRecovery::Vars<data_t>::enum_mapping(
     VarsTools::define_enum_mapping(mapping_function, GRInterval<c_vi1, c_vi3>(),
                                    vi);
     VarsTools::define_enum_mapping(mapping_function, c_rho, rho);
+    VarsTools::define_enum_mapping(mapping_function, c_eps, eps);
     VarsTools::define_enum_mapping(mapping_function, c_nn, nn);
 }
 

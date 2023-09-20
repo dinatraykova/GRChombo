@@ -74,18 +74,16 @@ class InitialFluidData
             1. + 0.5 * (tanh((y - m_params.ycenter[0]) / m_params.awidth) -
                         tanh((y - m_params.ycenter[1]) / m_params.awidth));
 
-        // For a conformal fluid rest-mass density = energy densty
-        data_t rho = m_params.rho0;
+        data_t eps = 0.;
 
+        data_t rho = m_params.rho0;
         data_t v2 = 0.;
         FOR(i, j) v2 += metric_vars.h[i][j] * vi[i] * vi[j] / chi_regularised;
-        data_t P = rho / 3.; // pressure
+        data_t P = rho * (1. + eps) / 3.;
         data_t W2 = 1. / (1. - v2);
-        data_t hh =
-            4. /
-            3.; // specific enthalpy = 1. + vareps + Poverrho, conf. fl vareps=0
+        data_t hh = 1. + eps + P / rho;
 
-        data_t D = rho * sqrt(W2); // conserved rest-mass density
+        data_t D = rho * sqrt(W2);
         data_t tau = rho * hh * W2 - P - D;
         FOR(i)
         {

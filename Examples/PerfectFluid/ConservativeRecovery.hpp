@@ -28,10 +28,10 @@ void PtoC(vars_t<data_t> &vars)
     data_t v2 = 0.;
     FOR(i) v2 += vars.vi[i] * vi_D[i];
 
-    double vareps = 0.;
-    data_t Poverrho = (1. + vareps) / 3.; // for now we assume a conformal fluid
+    data_t Poverrho =
+        (1. + vars.eps) / 3.; // for now we assume a conformal fluid
     data_t WW = 1. / (1. - v2);
-    data_t hh = 1. + vareps + Poverrho;
+    data_t hh = 1. + vars.eps + Poverrho;
 
     vars.D = vars.rho * sqrt(WW);
     vars.tau = vars.rho * hh * WW - vars.rho * Poverrho - vars.D;
@@ -41,33 +41,5 @@ void PtoC(vars_t<data_t> &vars)
     vars.Jt = vars.nn * sqrt(1. + v2);
 }
 
-/*// Conservative to primitive variables
-template <class data_t, template <typename> class vars_t>
-void CtoP(vars_t<data_t> &vars)
-{
-    const auto h_UU = TensorAlgebra::compute_inverse_sym(vars.h);
-    data_t E = vars.tau + vars.D;
-    data_t S2 = 0.;
-    FOR(i, j) S2 += vars.chi * h_UU[i][j] * vars.Sj[i] * vars.Sj[j];
-
-    data_t E2 = E * E;
-    data_t sqrt1 = sqrt(4. * E2 - 3. * S2);
-    data_t sqrt2 = sqrt(2. * E2 - 3. * S2 + E * sqrt1);
-
-    // eps
-    vars.eps =
-        sqrt2 / (2. * vars.D) - 1.; // Is it dangerous to divide by D?
-    // rho
-    vars.rho = (sqrt1 - E) / (1. + vars.eps);
-    // vi_D
-    Tensor<1, data_t> vi_D;
-    FOR(i) vi_D[i] = 3. * vars.Sj[i] * (sqrt1 - E) / (sqrt2 * sqrt2);
-    // vi
-    FOR(i)
-    {
-        vars.vi[i] = 0.;
-        FOR(j) vars.vi[i] += vars.chi * h_UU[i][j] * vi_D[j];
-    }
-}*/
 } // namespace ConservativeRecovery
 #endif /* CONSERVATIVERECOVERY_HPP_ */

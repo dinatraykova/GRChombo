@@ -28,12 +28,11 @@ class EoS
     void compute_eos(data_t &P_of_rho, data_t &dPdrho,
                      const vars_t<data_t> &vars) const
     {
-        double vareps = 0.;
         // The pressure value in function of rho
-        P_of_rho = m_params.eos_w * vars.rho * (1. + vareps);
+        P_of_rho = m_params.eos_w * vars.rho * (1. + vars.eps);
 
         // The pressure gradient wrt rho
-        dPdrho = m_params.eos_w * (1. + vareps);
+        dPdrho = m_params.eos_w * (1. + vars.eps);
     }
 };
 

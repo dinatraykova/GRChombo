@@ -31,9 +31,8 @@ emtensor_t<data_t> PerfectFluid<eos_t>::compute_emtensor(
     {
         v2 += vars.h[i][j] * vars.vi[i] * vars.vi[j] / chi_regularised;
     }
-    double vareps = 0.;
     data_t WW = 1. / (1. - v2);
-    data_t hh = 1. + vareps + P_of_rho / vars.rho;
+    data_t hh = 1. + vars.eps + P_of_rho / vars.rho;
 
     Tensor<1, data_t> vi_D;
     FOR(i)
@@ -110,6 +109,7 @@ void PerfectFluid<eos_t>::add_matter_rhs(
     {
         vars_t<data_t> vars_right_p = vars;
         vars_right_p.rho = rp.rho[idir];
+        vars_right_p.eps = rp.eps[idir];
         vars_right_p.nn = rp.nn[idir];
         FOR(j) { vars_right_p.vi[j] = rp.vi[j][idir]; }
         ConservativeRecovery::PtoC(vars_right_p);
@@ -118,6 +118,7 @@ void PerfectFluid<eos_t>::add_matter_rhs(
 
         vars_t<data_t> vars_right_m = vars;
         vars_right_m.rho = rm.rho[idir];
+        vars_right_m.eps = rm.eps[idir];
         vars_right_m.nn = rm.nn[idir];
         FOR(j) vars_right_m.vi[j] = rm.vi[j][idir];
         ConservativeRecovery::PtoC(vars_right_m);
@@ -138,6 +139,7 @@ void PerfectFluid<eos_t>::add_matter_rhs(
     {
         vars_t<data_t> vars_left_p = vars;
         vars_left_p.rho = lp.rho[idir];
+        vars_left_p.eps = lp.eps[idir];
         vars_left_p.nn = lp.nn[idir];
         FOR(j) { vars_left_p.vi[j] = lp.vi[j][idir]; }
         ConservativeRecovery::PtoC(vars_left_p);
@@ -146,6 +148,7 @@ void PerfectFluid<eos_t>::add_matter_rhs(
 
         vars_t<data_t> vars_left_m = vars;
         vars_left_m.rho = lm.rho[idir];
+        vars_left_m.eps = lm.eps[idir];
         vars_left_m.nn = lm.nn[idir];
         FOR(j) { vars_left_m.vi[j] = lm.vi[j][idir]; }
         ConservativeRecovery::PtoC(vars_left_m);
@@ -163,6 +166,7 @@ void PerfectFluid<eos_t>::add_matter_rhs(
     }
 
     rhs.rho = 0.;
+    rhs.eps = 0.;
     rhs.nn = 0.;
     FOR(i) { rhs.vi[i] = 0.; }
 }

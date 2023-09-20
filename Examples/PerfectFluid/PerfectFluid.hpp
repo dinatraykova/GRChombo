@@ -57,6 +57,7 @@ template <class eos_t = DefaultEoS> class PerfectFluid
         data_t Jt;
         Tensor<1, data_t> vi;
         data_t rho;
+        data_t eps;
         data_t nn;
 
         /// Defines the mapping between members of Vars and Chombo grid
@@ -74,6 +75,7 @@ template <class eos_t = DefaultEoS> class PerfectFluid
             define_enum_mapping(mapping_function, GRInterval<c_vi1, c_vi3>(),
                                 vi);
             define_enum_mapping(mapping_function, c_rho, rho);
+            define_enum_mapping(mapping_function, c_eps, eps);
             define_enum_mapping(mapping_function, c_nn, nn);
         }
     };
