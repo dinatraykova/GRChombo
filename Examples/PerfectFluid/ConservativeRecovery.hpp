@@ -38,7 +38,7 @@ void PtoC(vars_t<data_t> &vars)
 
     // S_j (note lower index) = - n^a T_ai
     FOR(i) { vars.Sj[i] = vars.rho * hh * WW * vi_D[i]; }
-    vars.Jt = vars.nn * sqrt(1. + v2);
+    vars.Jt = vars.nn * sqrt(1. - v2);
 }
 
 } // namespace ConservativeRecovery

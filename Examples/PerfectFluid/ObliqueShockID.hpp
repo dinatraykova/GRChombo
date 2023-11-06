@@ -106,12 +106,16 @@ class InitialFluidData
                 rho * hh * WW * metric_vars.h[i][j] * vi[j] / chi_regularised;
         }
 
+        data_t Jt = nn * sqrt(1. + v2);
+
         // store the vars
         current_cell.store_vars(rho, c_rho);
         current_cell.store_vars(vi, GRInterval<c_vi1, c_vi3>());
         current_cell.store_vars(D, c_D);
         current_cell.store_vars(Sj, GRInterval<c_Sj1, c_Sj3>());
         current_cell.store_vars(tau, c_tau);
+        current_cell.store_vars(nn, c_nn);
+        current_cell.store_vars(Jt, c_Jt);
     }
 
   protected:

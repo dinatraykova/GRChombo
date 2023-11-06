@@ -59,7 +59,7 @@ class PrimitiveRecovery
         data_t v2 = 0.;
         FOR(i) v2 += vars.vi[i] * vi_D[i];
 
-        vars.nn = vars.Jt / sqrt(1. + v2);
+        vars.nn = vars.Jt / sqrt(1. - v2);
 
         current_cell.store_vars(vars);
     }

@@ -32,9 +32,9 @@ class SimulationParameters : public SimulationParametersBase
             center; // already read in SimulationParametersBase
         pp.load("G_Newton", G_Newton,
                 0.0); // for now the example neglects backreaction
-        pp.load("fluid_rho0", initial_params.rho0, 1.0);
-        pp.load("fluid_width", initial_params.awidth, 0.1);
-        pp.load("fluid_delta", initial_params.delta, 0.2);
+        pp.load("fluid_rho0", initial_params.rho0, 0.01);
+        pp.load("fluid_width", initial_params.awidth, 1.);
+        pp.load("fluid_delta", initial_params.delta, 0.0);
         pp.load("lambda", lambda, 1.); // eigenvalue for numerical flux
         pp.load("eos_w", eos_params.eos_w, 1. / 3.);
 
