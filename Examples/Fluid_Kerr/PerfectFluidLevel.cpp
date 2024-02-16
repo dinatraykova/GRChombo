@@ -90,7 +90,7 @@ void PerfectFluidLevel::specificEvalRHS(GRLevelData &a_soln, GRLevelData &a_rhs,
     BoxLoops::loop(make_compute_pack(TraceARemoval(), PositiveDensity(),
                                      PositiveChiAndAlpha(),
                                      PrimitiveRecovery()),
-                   a_soln, a_soln, INCLUDE_GHOST_CELLS);
+                   a_soln, a_soln, INCLUDE_GHOST_CELLS, disable_simd());
 
     // Calculate MatterCCZ4 right hand side with matter_t = ScalarField
     EoS eos(m_p.eos_params);
@@ -120,8 +120,10 @@ void PerfectFluidLevel::specificUpdateODE(GRLevelData &a_soln,
                                           const GRLevelData &a_rhs, Real a_dt)
 {
     // Enforce trace free A_ij
-    BoxLoops::loop(make_compute_pack(TraceARemoval(), PrimitiveRecovery()),
-                   a_soln, a_soln, INCLUDE_GHOST_CELLS);
+    BoxLoops::loop(make_compute_pack(TraceARemoval(), PositiveDensity(),
+                                     PositiveChiAndAlpha(),
+                                     PrimitiveRecovery()),
+                   a_soln, a_soln, INCLUDE_GHOST_CELLS, disable_simd());
 }
 
 void PerfectFluidLevel::preTagCells()
