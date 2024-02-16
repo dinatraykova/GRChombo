@@ -9,11 +9,13 @@
 
 #include "CCZ4Geometry.hpp"
 #include "Cell.hpp"
+#include "DefaultEoS.hpp"
 #include "Tensor.hpp"
 #include "TensorAlgebra.hpp"
 #include "UserVariables.hpp"
 #include "VarsTools.hpp"
 
+// template <class eos_t = DefaultEoS>
 class PrimitiveRecovery
 {
   public:
@@ -33,35 +35,47 @@ class PrimitiveRecovery
 
         const auto h_UU = TensorAlgebra::compute_inverse_sym(vars.h);
 
-        data_t E = vars.tau + vars.D;
+        data_t tolerance = 1e-8;
+        data_t Wa2, Wa, xn, diff;
+
+        data_t P_of_rho = 0.;
+        data_t dPdrho = 0.;
+
         data_t S2 = 0.;
         FOR(i, j) S2 += vars.chi * h_UU[i][j] * vars.Sj[i] * vars.Sj[j];
 
-        data_t E2 = E * E;
-        data_t sqrt1 = sqrt(4. * E2 - 3. * S2);
-        data_t sqrt2 = sqrt(2. * E2 - 3. * S2 + E * sqrt1);
+        data_t q = vars.tau / vars.D;
+        data_t r = S2 / pow(vars.D, 2.);
+        data_t xa = 1.5 * (1 + q);
+        Wa = sqrt(pow(xa, 2.) / (pow(xa, 2.) - r));
 
-        // eps
-        vars.eps =
-            sqrt2 / (2. * vars.D) - 1.; // Is it dangerous to divide by D?
-        // rho
-        vars.rho = (sqrt1 - E) / (1. + vars.eps);
-        // vi_D
-        Tensor<1, data_t> vi_D;
-        FOR(i) vi_D[i] = 3. * vars.Sj[i] * (sqrt1 - E) / (sqrt2 * sqrt2);
-        // vi
-        FOR(i)
+        vars.rho = vars.D / Wa;
+        vars.eps = -1. + xa / Wa * (1. - Wa * Wa) + Wa * (1. + q);
+        // my_eos.compute_eos(P_of_rho, dPdrho, vars);
+        P_of_rho = vars.rho * (1. + vars.eps) / 3.;
+
+        xn = Wa * (1. + vars.eps + P_of_rho / vars.rho);
+        diff = abs(xn - xa);
+
+        int i = 0;
+
+        while (diff > tolerance)
+        // while (simd_compare_lt(tolerance, diff))
         {
-            vars.vi[i] = 0.;
-            FOR(j) vars.vi[i] += vars.chi * h_UU[i][j] * vi_D[j];
+            i++;
+            Wa = sqrt(pow(xa, 2.) / (pow(xa, 2.) - r));
+
+            vars.rho = vars.D / Wa;
+            vars.eps = -1. + xa / Wa * (1. - Wa * Wa) + Wa * (1. + q);
+            // my_eos.compute_eos(P_of_rho, dPdrho, vars);
+            P_of_rho = vars.rho * (1. + vars.eps) / 3.;
+
+            xn = Wa * (1. + vars.eps + P_of_rho / vars.rho);
+            diff = abs(xn - xa);
+            xa = xn;
+            if (i >= 1000)
+                break;
         }
-
-        data_t v2 = 0.;
-        FOR(i) v2 += vars.vi[i] * vi_D[i];
-
-        //        vars.nn = vars.Jt / sqrt(1. - v2);
-
-        current_cell.store_vars(vars);
     }
 };
 
@@ -74,7 +88,6 @@ void PrimitiveRecovery::Vars<data_t>::enum_mapping(
                                              GRInterval<c_h11, c_h33>(), h);
     VarsTools::define_enum_mapping(mapping_function, c_chi, chi);
     VarsTools::define_enum_mapping(mapping_function, c_D, D);
-    // VarsTools::define_enum_mapping(mapping_function, c_Jt, Jt);
     VarsTools::define_enum_mapping(mapping_function, GRInterval<c_Sj1, c_Sj3>(),
                                    Sj);
     VarsTools::define_enum_mapping(mapping_function, c_tau, tau);
@@ -82,7 +95,6 @@ void PrimitiveRecovery::Vars<data_t>::enum_mapping(
                                    vi);
     VarsTools::define_enum_mapping(mapping_function, c_rho, rho);
     VarsTools::define_enum_mapping(mapping_function, c_eps, eps);
-    //    VarsTools::define_enum_mapping(mapping_function, c_nn, nn);
 }
 
 #endif /* PRIMITIVERECOVERY_HPP_ */

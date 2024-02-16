@@ -19,7 +19,7 @@ class PositiveDensity
 
   public:
     //! Constructor for class
-    PositiveDensity(const double a_min_D = 1e-4, const double a_min_v = 0.)
+    PositiveDensity(const double a_min_D = 1e-12, const double a_min_v = 0.)
         : m_min_D(a_min_D), m_min_v(a_min_v)
     {
     }
@@ -36,10 +36,14 @@ class PositiveDensity
 
         auto make_zero = simd_compare_lt(D, m_min_D);
         D = simd_conditional(make_zero, D, m_min_D);
+        // tau = simd_conditional(make_zero, tau, 1e-4);
         FOR(i) vi[i] = simd_conditional(make_zero, vi[i], m_min_v);
 
-        current_cell.store_vars(D, c_D);
-        current_cell.store_vars(vi, GRInterval<c_vi1, c_vi3>());
+        // current_cell.store_vars(D, c_D);
+        //  current_cell.store_vars(rho, c_rho);
+        // current_cell.store_vars(vi, GRInterval<c_vi1, c_vi3>());
+        //  current_cell.store_vars(Sj, GRInterval<c_Sj1, c_Sj3>());
+        //  current_cell.store_vars(tau, c_tau);
     }
 };
 
