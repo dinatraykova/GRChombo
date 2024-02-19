@@ -25,14 +25,10 @@ class EoS
 
     //! Set the pressure of the perfect fluid here
     template <class data_t, template <typename> class vars_t>
-    void compute_eos(data_t &P_of_rho, data_t &dPdrho,
-                     const vars_t<data_t> &vars) const
+    void compute_eos(data_t &P_over_rho, const vars_t<data_t> &vars) const
     {
         // The pressure value in function of rho
-        P_of_rho = m_params.eos_w * vars.rho * (1. + vars.eps);
-
-        // The pressure gradient wrt rho
-        dPdrho = m_params.eos_w * (1. + vars.eps);
+        P_over_rho = m_params.eos_w * (1. + vars.eps);
     }
 };
 

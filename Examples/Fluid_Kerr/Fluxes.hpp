@@ -14,7 +14,7 @@
 namespace Fluxes
 {
 template <class data_t, template <typename> class vars_t>
-vars_t<data_t> compute_flux(const data_t P_of_rho, const vars_t<data_t> &vars,
+vars_t<data_t> compute_flux(const data_t P_over_rho, const vars_t<data_t> &vars,
                             const int idir)
 {
     const auto h_UU = TensorAlgebra::compute_inverse_sym(vars.h);
@@ -38,32 +38,29 @@ vars_t<data_t> compute_flux(const data_t P_of_rho, const vars_t<data_t> &vars,
     data_t v2 = 0.;
     FOR(i) v2 += vars.vi[i] * vi_D[i];
 
-    //    data_t P =
-    //  vars.rho * (1. + vars.eps) / 3.; // for now we assume a conformal fluid
     data_t WW = 1. / (1. - v2);
-    data_t hh = 1. + vars.eps + P_of_rho / vars.rho;
+    data_t hh = 1. + vars.eps + P_over_rho;
 
     FOR(j)
     {
         out.Sj[j] = vars.lapse * vars.rho * hh * WW * vars.vi[idir] * vi_D[j] -
                     vars.shift[idir] * vars.Sj[j];
         FOR(k)
-        out.Sj[j] += vars.lapse * P_of_rho * h_UU[idir][k] * vars.h[j][k];
+        out.Sj[j] +=
+            vars.lapse * vars.rho * P_over_rho * h_UU[idir][k] * vars.h[j][k];
     }
 
     out.tau = vars.lapse * (Sj_U[idir] - vars.D * vars.vi[idir]) -
               vars.shift[idir] * vars.tau;
 
-    //    out.Jt = vars.nn * vars.vi[idir] * sqrt(WW);
-
     return out;
 }
 template <class data_t, template <typename> class vars_t>
-vars_t<data_t> compute_num_flux(const data_t P_of_rho,
+vars_t<data_t> compute_num_flux(const data_t P_over_rho,
                                 const vars_t<data_t> &vars, const int idir,
                                 const double lambda, const int sign)
 {
-    vars_t<data_t> out = compute_flux(P_of_rho, vars, idir);
+    vars_t<data_t> out = compute_flux(P_over_rho, vars, idir);
     out.D += sign * lambda * vars.D;
     FOR(j) out.Sj[j] += sign * lambda * vars.Sj[j];
     out.tau += sign * lambda * vars.tau;

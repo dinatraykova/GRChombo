@@ -38,8 +38,7 @@ class PrimitiveRecovery
         data_t tolerance = 1e-8;
         data_t Wa2, Wa, xn, diff;
 
-        data_t P_of_rho = 0.;
-        data_t dPdrho = 0.;
+        data_t P_over_rho = 0.;
 
         data_t S2 = 0.;
         FOR(i, j) S2 += vars.chi * h_UU[i][j] * vars.Sj[i] * vars.Sj[j];
@@ -51,10 +50,10 @@ class PrimitiveRecovery
 
         vars.rho = vars.D / Wa;
         vars.eps = -1. + xa / Wa * (1. - Wa * Wa) + Wa * (1. + q);
-        // my_eos.compute_eos(P_of_rho, dPdrho, vars);
-        P_of_rho = vars.rho * (1. + vars.eps) / 3.;
+        // my_eos.compute_eos(P_over_rho, vars);
+        P_over_rho = (1. + vars.eps) / 3.;
 
-        xn = Wa * (1. + vars.eps + P_of_rho / vars.rho);
+        xn = Wa * (1. + vars.eps + P_over_rho);
         diff = abs(xn - xa);
 
         int i = 0;
@@ -67,10 +66,10 @@ class PrimitiveRecovery
 
             vars.rho = vars.D / Wa;
             vars.eps = -1. + xa / Wa * (1. - Wa * Wa) + Wa * (1. + q);
-            // my_eos.compute_eos(P_of_rho, dPdrho, vars);
-            P_of_rho = vars.rho * (1. + vars.eps) / 3.;
+            // my_eos.compute_eos(P_over_rho, vars);
+            P_over_rho = (1. + vars.eps) / 3.;
 
-            xn = Wa * (1. + vars.eps + P_of_rho / vars.rho);
+            xn = Wa * (1. + vars.eps + P_over_rho);
             diff = abs(xn - xa);
             xa = xn;
             if (i >= 1000)

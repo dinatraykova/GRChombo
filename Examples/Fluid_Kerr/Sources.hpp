@@ -15,7 +15,8 @@ namespace Sources
 {
 // Primitive to conservative variables
 template <class data_t, template <typename> class vars_t>
-vars_t<data_t> compute_source(const data_t P_of_rho, const vars_t<data_t> &vars,
+vars_t<data_t> compute_source(const data_t P_over_rho,
+                              const vars_t<data_t> &vars,
                               const vars_t<Tensor<1, data_t>> &d1)
 {
     data_t chi_regularised = simd_max(1e-6, vars.chi);
@@ -25,10 +26,8 @@ vars_t<data_t> compute_source(const data_t P_of_rho, const vars_t<data_t> &vars,
     data_t v2 = 0.;
     FOR(i, j) v2 += vars.h[i][j] * vars.vi[j] * vars.vi[i] / chi_regularised;
 
-    //    data_t P =
-    //  vars.rho * (1. + vars.eps) / 3.; // for now we assume a conformal fluid
     data_t WW = 1. / (1. - v2);
-    data_t hh = 1. + vars.eps + P_of_rho / vars.rho;
+    data_t hh = 1. + vars.eps + P_over_rho;
 
     out.D = 0.;
     FOR(j)
@@ -42,9 +41,9 @@ vars_t<data_t> compute_source(const data_t P_of_rho, const vars_t<data_t> &vars,
                 out.Sj[j] += vars.lapse / 2. *
                              (d1.h[i][k][j] -
                               vars.h[i][k] * d1.chi[j] / chi_regularised) *
-                             (vars.rho * hh * WW * vars.vi[i] * vars.vi[k] /
-                                  chi_regularised +
-                              P_of_rho * h_UU[i][k]);
+                             (vars.rho * (hh * WW * vars.vi[i] * vars.vi[k] /
+                                              chi_regularised +
+                                          P_over_rho * h_UU[i][k]));
             }
         }
     }
@@ -52,13 +51,11 @@ vars_t<data_t> compute_source(const data_t P_of_rho, const vars_t<data_t> &vars,
     FOR(i, j)
     {
         out.tau += vars.lapse * (vars.A[i][j] + vars.h[i][j] / 3. * vars.K) *
-                       (vars.rho * hh * WW * vars.vi[i] * vars.vi[j] /
-                            chi_regularised +
-                        P_of_rho * h_UU[i][j]) -
+                       (vars.rho *
+                        (hh * WW * vars.vi[i] * vars.vi[j] / chi_regularised +
+                         P_over_rho * h_UU[i][j])) -
                    vars.chi * h_UU[i][j] * vars.Sj[i] * d1.lapse[j];
     }
-
-    // out.Jt = 0.;
 
     return out;
 }
