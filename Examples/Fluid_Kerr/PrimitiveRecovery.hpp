@@ -45,10 +45,10 @@ class PrimitiveRecovery
 
         data_t q = vars.tau / vars.D;
         data_t r = S2 / pow(vars.D, 2.);
-        data_t xa = 1.5 * (1 + q);
+        data_t xa = 1.5 * (1. + q);
         Wa = sqrt(pow(xa, 2.) / (pow(xa, 2.) - r));
 
-        vars.rho = vars.D / Wa;
+        vars.rho = pow(vars.chi, 1.5) * vars.D / Wa;
         vars.eps = -1. + xa / Wa * (1. - Wa * Wa) + Wa * (1. + q);
         // my_eos.compute_eos(P_over_rho, vars);
         P_over_rho = (1. + vars.eps) / 3.;
@@ -64,7 +64,7 @@ class PrimitiveRecovery
             i++;
             Wa = sqrt(pow(xa, 2.) / (pow(xa, 2.) - r));
 
-            vars.rho = vars.D / Wa;
+            vars.rho = pow(vars.chi, 1.5) * vars.D / Wa;
             vars.eps = -1. + xa / Wa * (1. - Wa * Wa) + Wa * (1. + q);
             // my_eos.compute_eos(P_over_rho, vars);
             P_over_rho = (1. + vars.eps) / 3.;
@@ -72,7 +72,7 @@ class PrimitiveRecovery
             xn = Wa * (1. + vars.eps + P_over_rho);
             diff = abs(xn - xa);
             xa = xn;
-            if (i >= 1000)
+            if (i >= 20)
                 break;
         }
     }

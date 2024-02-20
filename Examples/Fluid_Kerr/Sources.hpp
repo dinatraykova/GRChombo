@@ -29,6 +29,8 @@ vars_t<data_t> compute_source(const data_t P_over_rho,
     data_t WW = 1. / (1. - v2);
     data_t hh = 1. + vars.eps + P_over_rho;
 
+    data_t rho_conformal = vars.rho / pow(vars.chi, 1.5);
+
     out.D = 0.;
     FOR(j)
     {
@@ -41,19 +43,20 @@ vars_t<data_t> compute_source(const data_t P_over_rho,
                 out.Sj[j] += vars.lapse / 2. *
                              (d1.h[i][k][j] -
                               vars.h[i][k] * d1.chi[j] / chi_regularised) *
-                             (vars.rho * (hh * WW * vars.vi[i] * vars.vi[k] /
+                             (rho_conformal * hh * WW * vars.vi[i] * vars.vi[k] /
                                               chi_regularised +
-                                          P_over_rho * h_UU[i][k]));
+                                          P_over_rho * h_UU[i][k]);
             }
         }
     }
     out.tau = 0.;
     FOR(i, j)
     {
-        out.tau += vars.lapse * (vars.A[i][j] + vars.h[i][j] / 3. * vars.K) *
-                       (vars.rho *
-                        (hh * WW * vars.vi[i] * vars.vi[j] / chi_regularised +
-                         P_over_rho * h_UU[i][j])) -
+        out.tau += vars.lapse * 
+		   (vars.A[i][j] + vars.h[i][j] / 3. * vars.K) *
+                       (rho_conformal *
+                        hh * WW * vars.vi[i] * vars.vi[j] / chi_regularised +
+                        P_over_rho * h_UU[i][j]) -
                    vars.chi * h_UU[i][j] * vars.Sj[i] * d1.lapse[j];
     }
 

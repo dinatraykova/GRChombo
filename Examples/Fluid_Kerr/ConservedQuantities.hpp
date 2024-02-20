@@ -31,11 +31,13 @@ void PtoC(const data_t P_over_rho, vars_t<data_t> &vars)
     data_t WW = 1. / (1. - v2);
     data_t hh = 1. + vars.eps + P_over_rho;
 
-    vars.D = vars.rho * sqrt(WW);
-    vars.tau = vars.rho * (hh * WW - P_over_rho) - vars.D;
+    data_t rho_conformal = vars.rho / pow(vars.chi, 1.5);
+
+    vars.D = rho_conformal * sqrt(WW);
+    vars.tau = rho_conformal * (hh * WW - P_over_rho) - vars.D;
 
     // S_j (note lower index) = - n^a T_ai
-    FOR(i) { vars.Sj[i] = vars.rho * hh * WW * vi_D[i]; }
+    FOR(i) { vars.Sj[i] = rho_conformal * hh * WW * vi_D[i]; }
 }
 
 } // namespace ConservedQuantities

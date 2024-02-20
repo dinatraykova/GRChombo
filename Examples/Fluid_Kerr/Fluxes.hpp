@@ -40,14 +40,16 @@ vars_t<data_t> compute_flux(const data_t P_over_rho, const vars_t<data_t> &vars,
 
     data_t WW = 1. / (1. - v2);
     data_t hh = 1. + vars.eps + P_over_rho;
+    
+    data_t rho_conformal = vars.rho / pow(vars.chi, 1.5); 
 
     FOR(j)
     {
-        out.Sj[j] = vars.lapse * vars.rho * hh * WW * vars.vi[idir] * vi_D[j] -
+        out.Sj[j] = vars.lapse * rho_conformal * hh * WW * vars.vi[idir] * vi_D[j] -
                     vars.shift[idir] * vars.Sj[j];
         FOR(k)
         out.Sj[j] +=
-            vars.lapse * vars.rho * P_over_rho * h_UU[idir][k] * vars.h[j][k];
+            vars.lapse * rho_conformal * P_over_rho * h_UU[idir][k] * vars.h[j][k];
     }
 
     out.tau = vars.lapse * (Sj_U[idir] - vars.D * vars.vi[idir]) -
