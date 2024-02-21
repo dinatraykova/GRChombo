@@ -95,7 +95,7 @@ template <> struct simd<double> : public simd_base<double>
         return vmaxq_f64(a, b);
     }
 
-    friend ALWAYS_INLINE bool simd_all_false(const mask_t cond)
+    friend ALWAYS_INLINE bool simd_all_false(const mask_t cond, const simd &b)
     {
         uint64x2_t high_bits = vshrq_n_u64(input, 63);
         //Lanes are indexed like bits (big-endian)
@@ -178,7 +178,7 @@ template <> struct simd<float> : public simd_base<float>
         return vmaxq_f32(a, b);
     }
 
-    friend ALWAYS_INLINE bool simd_all_false(const mask_t cond)
+    friend ALWAYS_INLINE bool simd_all_false(const mask_t cond, const simd &b)
     {
         uint32x4_t high_bits = vshrq_n_u32(input, 31);
         //Lanes are indexed like bits (big-endian)

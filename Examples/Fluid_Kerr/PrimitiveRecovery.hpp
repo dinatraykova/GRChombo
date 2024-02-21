@@ -10,9 +10,11 @@
 #include "CCZ4Geometry.hpp"
 #include "Cell.hpp"
 #include "DefaultEoS.hpp"
+#include "simd.hpp"
 #include "Tensor.hpp"
 #include "TensorAlgebra.hpp"
 #include "UserVariables.hpp"
+#include "UsingNamespace.H"
 #include "VarsTools.hpp"
 
 // template <class eos_t = DefaultEoS>
@@ -58,12 +60,10 @@ class PrimitiveRecovery
 
         int i = 0;
 
-	auto cond = simd_all_false(simd_compare_lt(diff, tolerance));
-        //while (simd_all_false(simd_compare_lt(diff, tolerance)))
-        while (i<20)
-	// while (simd_compare_lt(tolerance, diff))
+	data_t empty;
+	while (!simd_all_false(simd_compare_lt(tolerance, diff), empty))
         {
-            i++;
+	    i++;
             Wa = sqrt(pow(xa, 2.) / (pow(xa, 2.) - r));
 
             vars.rho = pow(vars.chi, 1.5) * vars.D / Wa;
@@ -74,7 +74,7 @@ class PrimitiveRecovery
             xn = Wa * (1. + vars.eps + P_over_rho);
             diff = abs(xn - xa);
             xa = xn;
-            if (i >= 20)
+            if (i >= 100)
                 break;
         }
     }

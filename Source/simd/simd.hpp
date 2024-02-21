@@ -175,7 +175,8 @@ template <typename t> ALWAYS_INLINE t simd_max(const t &a, const t &b)
     return (a > b) ? a : b;
 }
 
-template <typename t> ALWAYS_INLINE bool simd_all_false(const bool cond)
+// Here, t is some simd variable
+template <typename t> ALWAYS_INLINE bool simd_all_false(const bool cond, const t &b)
 {
     return !cond;
 }

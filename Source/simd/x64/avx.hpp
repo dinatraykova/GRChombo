@@ -109,7 +109,7 @@ template <> struct simd<double> : public simd_base<double>
         return _mm256_max_pd(a, b);
     }
 
-    friend ALWAYS_INLINE bool simd_all_false(const mask_t cond)
+    friend ALWAYS_INLINE bool simd_all_false(const mask_t cond, const simd &b)
     {
         int mask = _mm256_movemask_pd(cond);
         return mask == 0 ? true : false;
@@ -199,7 +199,7 @@ template <> struct simd<float> : public simd_base<float>
         return _mm256_max_ps(a, b);
     }
 
-    friend ALWAYS_INLINE bool simd_all_false(const mask_t cond)
+    friend ALWAYS_INLINE bool simd_all_false(const mask_t cond, const simd &b)
     {
         int mask = _mm256_movemask_ps(cond);
         return mask == 0 ? true : false;
