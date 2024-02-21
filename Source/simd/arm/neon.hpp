@@ -98,8 +98,9 @@ template <> struct simd<double> : public simd_base<double>
     friend ALWAYS_INLINE bool simd_all_false(const mask_t cond, const simd &b)
     {
         uint64x2_t high_bits = vshrq_n_u64(input, 63);
-        //Lanes are indexed like bits (big-endian)
-        int moved_mask = vgetq_lane_u64(high_bits, 0) | (vgetq_lane_u64(high_bits, 1) << 1);
+        // Lanes are indexed like bits (big-endian)
+        int moved_mask =
+            vgetq_lane_u64(high_bits, 0) | (vgetq_lane_u64(high_bits, 1) << 1);
         return moved_mask == 0 ? true : false;
     }
 
@@ -181,12 +182,14 @@ template <> struct simd<float> : public simd_base<float>
     friend ALWAYS_INLINE bool simd_all_false(const mask_t cond, const simd &b)
     {
         uint32x4_t high_bits = vshrq_n_u32(input, 31);
-        //Lanes are indexed like bits (big-endian)
-        int moved_mask = vgetq_lane_u32(high_bits, 0) | (vgetq_lane_u32(high_bits, 1) << 1) 
-                        | (vgetq_lane_u32(high_bits, 2) << 2) (vgetq_lane_u32(high_bits, 3) << 3);
+        // Lanes are indexed like bits (big-endian)
+        int moved_mask = vgetq_lane_u32(high_bits, 0) |
+                         (vgetq_lane_u32(high_bits, 1) << 1) |
+                         (vgetq_lane_u32(high_bits, 2)
+                          << 2)(vgetq_lane_u32(high_bits, 3) << 3);
         return moved_mask == 0 ? true : false;
     }
-    
+
     friend ALWAYS_INLINE simd simd_sqrt(const simd &a) { return vsqrtq_f32(a); }
 };
 

@@ -127,10 +127,7 @@ template <typename t> struct simd
         return (a > b) ? a : b;
     }
 
-    friend ALWAYS_INLINE bool simd_all_false(const bool cond)
-    {
-        return !cond;
-    }
+    friend ALWAYS_INLINE bool simd_all_false(const bool cond) { return !cond; }
 };
 
 // Define all the simd-functions whose implementation does not depend on the
@@ -176,7 +173,8 @@ template <typename t> ALWAYS_INLINE t simd_max(const t &a, const t &b)
 }
 
 // Here, t is some simd variable
-template <typename t> ALWAYS_INLINE bool simd_all_false(const bool cond, const t &b)
+template <typename t>
+ALWAYS_INLINE bool simd_all_false(const bool cond, const t &b)
 {
     return !cond;
 }

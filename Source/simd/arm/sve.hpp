@@ -124,7 +124,8 @@ template <> struct simd<double> : public simd_base<double>
 
     friend ALWAYS_INLINE bool simd_all_false(const mask_t cond, const simd &b)
     {
-        //Would be nice to implement a movemask here, for extensions to lane-specific info
+        // Would be nice to implement a movemask here, for extensions to
+        // lane-specific info
         return !svptest_any(svptrue_b64(), cond);
     }
 
@@ -214,7 +215,8 @@ template <> struct simd<float> : public simd_base<float>
 
     friend ALWAYS_INLINE bool simd_all_false(const mask_t cond, const simd &b)
     {
-        //Would be nice to implement a movemask here, for extensions to lane-specific info
+        // Would be nice to implement a movemask here, for extensions to
+        // lane-specific info
         return !svptest_any(svptrue_b32(), cond);
     }
 
