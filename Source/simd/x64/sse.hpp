@@ -121,6 +121,12 @@ template <> struct simd<double> : public simd_base<double>
         return _mm_max_pd(a, b);
     }
 
+    friend ALWAYS_INLINE bool simd_all_false(const mask_t cond)
+    {
+        int mask = _mm_movemask_pd(cond);
+        return mask == 0 ? true : false;
+    }
+
     friend ALWAYS_INLINE simd simd_sqrt(const simd &a)
     {
         return _mm_sqrt_pd(a);
@@ -213,6 +219,12 @@ template <> struct simd<float> : public simd_base<float>
     friend ALWAYS_INLINE simd simd_max(const simd &a, const simd &b)
     {
         return _mm_max_ps(a, b);
+    }
+
+    friend ALWAYS_INLINE bool simd_all_false(const mask_t cond)
+    {
+        int mask = _mm_movemask_ps(cond);
+        return mask == 0 ? true : false;
     }
 
     friend ALWAYS_INLINE simd simd_sqrt(const simd &a)

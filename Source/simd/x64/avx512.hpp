@@ -103,6 +103,12 @@ template <> struct simd<double> : public simd_base<double>
         return _mm512_max_pd(a, b);
     }
 
+    friend ALWAYS_INLINE bool simd_all_false(const mask_t cond)
+    {
+        int mask = static_cast<int>(cond);
+        return mask == 0 ? true : false;
+    }
+
 #ifdef __AVX512ER__
     friend ALWAYS_INLINE simd exp2(const simd &a)
     {
@@ -196,6 +202,12 @@ template <> struct simd<float> : public simd_base<float>
     friend ALWAYS_INLINE simd simd_max(const simd &a, const simd &b)
     {
         return _mm512_max_ps(a, b);
+    }
+
+    friend ALWAYS_INLINE bool simd_all_false(const mask_t cond)
+    {
+        int mask = static_cast<int>(cond);
+        return mask == 0 ? true : false;
     }
 
 #ifdef __AVX512ER__

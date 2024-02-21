@@ -58,8 +58,10 @@ class PrimitiveRecovery
 
         int i = 0;
 
-        while (diff > tolerance)
-        // while (simd_compare_lt(tolerance, diff))
+	auto cond = simd_all_false(simd_compare_lt(diff, tolerance));
+        //while (simd_all_false(simd_compare_lt(diff, tolerance)))
+        while (i<20)
+	// while (simd_compare_lt(tolerance, diff))
         {
             i++;
             Wa = sqrt(pow(xa, 2.) / (pow(xa, 2.) - r));

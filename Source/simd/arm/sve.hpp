@@ -122,6 +122,12 @@ template <> struct simd<double> : public simd_base<double>
         return svmax_f64_z(svptrue_b64(), a, b);
     }
 
+    friend ALWAYS_INLINE bool simd_all_false(const mask_t cond)
+    {
+        //Would be nice to implement a movemask here, for extensions to lane-specific info
+        return !svptest_any(svptrue_b64(), cond);
+    }
+
     friend ALWAYS_INLINE simd simd_sqrt(const simd &a)
     {
         return svsqrt_f64_z(svptrue_b64(), a);
@@ -204,6 +210,12 @@ template <> struct simd<float> : public simd_base<float>
     friend ALWAYS_INLINE simd simd_max(const simd &a, const simd &b)
     {
         return svmax_f32_z(svptrue_b32(), a, b);
+    }
+
+    friend ALWAYS_INLINE bool simd_all_false(const mask_t cond)
+    {
+        //Would be nice to implement a movemask here, for extensions to lane-specific info
+        return !svptest_any(svptrue_b32(), cond);
     }
 
     friend ALWAYS_INLINE simd simd_sqrt(const simd &a)
