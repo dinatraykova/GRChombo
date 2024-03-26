@@ -45,12 +45,11 @@ class PrimitiveRecovery
 
         data_t q = vars.tau / vars.D;
         data_t r = S2 / pow(vars.D, 2.);
-        data_t xa = 1.5 * (1 + q);
+        data_t xa = 1.5 * (1. + q);
         Wa = sqrt(pow(xa, 2.) / (pow(xa, 2.) - r));
 
         vars.rho = vars.D / Wa;
         vars.eps = -1. + xa / Wa * (1. - Wa * Wa) + Wa * (1. + q);
-        // my_eos.compute_eos(P_over_rho, vars);
         P_over_rho = (1. + vars.eps) / 3.;
 
         xn = Wa * (1. + vars.eps + P_over_rho);
@@ -59,22 +58,31 @@ class PrimitiveRecovery
         int i = 0;
 
         while (diff > tolerance)
-        // while (simd_compare_lt(tolerance, diff))
         {
             i++;
             Wa = sqrt(pow(xa, 2.) / (pow(xa, 2.) - r));
 
             vars.rho = vars.D / Wa;
             vars.eps = -1. + xa / Wa * (1. - Wa * Wa) + Wa * (1. + q);
-            // my_eos.compute_eos(P_over_rho, vars);
             P_over_rho = (1. + vars.eps) / 3.;
 
             xn = Wa * (1. + vars.eps + P_over_rho);
             diff = abs(xn - xa);
             xa = xn;
-            if (i >= 1000)
+            if (i >= 100)
                 break;
         }
+        data_t hh = 1. + vars.eps + P_over_rho;
+        Tensor<1, data_t> vi_D;
+        FOR(i) vi_D[i] = vars.Sj[i] / vars.rho / hh / Wa / Wa;
+
+        FOR(i)
+        {
+            vars.vi[i] = 0.;
+            FOR(j) vars.vi[i] += vars.chi * h_UU[i][j] * vi_D[j];
+        }
+
+        current_cell.store_vars(vars);
     }
 };
 
