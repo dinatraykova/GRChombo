@@ -25,13 +25,10 @@
      This class is an example of a matter_t object which calculates the
      matter type specific elements for the RHS update and the evaluation
      of the constraints. This includes the Energy Momentum Tensor, and
-     the matter evolution terms. In this case, a scalar field,
-     the matter elements are phi and (minus) its conjugate momentum, Pi.
-     It is templated over a potential function potential_t which the
+     the matter evolution terms.
+     It is templated over an equation of state function eos_t, which the
      user must specify in a class, although a default is provided which
-     sets dVdphi and V_of_phi to zero.
-     It assumes minimal coupling of the field to gravity.
-     \sa MatterCCZ4(), ConstraintsMatter()
+     sets P_over_rho to (1 + eps) / 3.
 */
 template <class eos_t = DefaultEoS> class PerfectFluid
 {
