@@ -56,8 +56,6 @@ void PerfectFluidLevel::initialData()
 
     // First set everything to zero then initial conditions for scalar field -
     // here a Kerr BH and a scalar field profile
-    //    EoS eos(m_p.eos_params);
-    // PerfectFluidEoS perfect_fluid(eos);
     BoxLoops::loop(
         make_compute_pack(SetValue(0.), KerrBH(m_p.kerr_params, m_dx),
                           InitialFluidData(m_p.initial_params, m_dx)),
@@ -73,7 +71,7 @@ void PerfectFluidLevel::initialData()
 void PerfectFluidLevel::prePlotLevel()
 {
     fillAllGhosts();
-    EoS eos(m_p.eos_params);
+    EoS eos;
     PerfectFluidEoS perfect_fluid(m_dx, m_p.lambda, eos);
     BoxLoops::loop(MatterConstraints<PerfectFluidEoS>(perfect_fluid, m_dx,
                                                       m_p.G_Newton, c_Ham,
@@ -93,7 +91,7 @@ void PerfectFluidLevel::specificEvalRHS(GRLevelData &a_soln, GRLevelData &a_rhs,
                    a_soln, a_soln, INCLUDE_GHOST_CELLS, disable_simd());
 
     // Calculate MatterCCZ4 right hand side with matter_t = ScalarField
-    EoS eos(m_p.eos_params);
+    EoS eos;
     PerfectFluidEoS perfect_fluid(m_dx, m_p.lambda, eos);
     if (m_p.max_spatial_derivative_order == 4)
     {

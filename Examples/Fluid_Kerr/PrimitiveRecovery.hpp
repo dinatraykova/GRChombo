@@ -10,13 +10,14 @@
 #include "CCZ4Geometry.hpp"
 #include "Cell.hpp"
 #include "DefaultEoS.hpp"
+#include "EoS.hpp"
 #include "Tensor.hpp"
 #include "TensorAlgebra.hpp"
 #include "UserVariables.hpp"
 #include "VarsTools.hpp"
 
 // template <class eos_t = DefaultEoS>
-class PrimitiveRecovery
+class PrimitiveRecovery : public EoS
 {
   public:
     template <class data_t> struct Vars
@@ -50,7 +51,7 @@ class PrimitiveRecovery
 
         vars.rho = vars.D / Wa;
         vars.eps = -1. + xa / Wa * (1. - Wa * Wa) + Wa * (1. + q);
-        P_over_rho = (1. + vars.eps) / 3.;
+        EoS::compute_eos(P_over_rho, vars);
 
         xn = Wa * (1. + vars.eps + P_over_rho);
         diff = abs(xn - xa);

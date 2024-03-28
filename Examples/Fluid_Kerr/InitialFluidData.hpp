@@ -17,7 +17,7 @@
 #include "simd.hpp"
 
 //! Class which sets the initial fluid matter config
-class InitialFluidData
+class InitialFluidData : public EoS
 {
   public:
     //! A structure for the input params for fluid properties and initial
@@ -33,9 +33,6 @@ class InitialFluidData
 
     //! The constructor
     InitialFluidData(params_t a_params, double a_dx);
-    //              : m_dx(a_dx), m_params(a_params)
-    //{
-    //}
 
     //! Function to compute the value of all the initial vars on the grid
     //! The constructor

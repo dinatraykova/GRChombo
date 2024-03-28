@@ -18,12 +18,10 @@ inline InitialFluidData::InitialFluidData(params_t a_params, double a_dx)
 template <class data_t>
 void InitialFluidData::compute(Cell<data_t> current_cell) const
 {
-    // Set up EoS
-    // data_t P_over_rho = 0.;
-    // my_eos.compute_eos(P_over_rho, vars);
     // load vars
     FluidCCZ4RHS<PerfectFluid<>>::Vars<data_t> vars;
     VarsTools::assign(vars, 0.);
+
     // where am i?
     Coordinates<data_t> coords(current_cell, m_dx, m_params.center);
     data_t rr = coords.get_radius();
@@ -46,7 +44,9 @@ void InitialFluidData::compute(Cell<data_t> current_cell) const
     data_t v2 = 0.;
     FOR(i, j) v2 += vars.h[i][j] * vars.vi[i] * vars.vi[j] / chi_regularised;
     vars.eps = 0.;
-    data_t P_over_rho = vars.rho * (1. + vars.eps) / 3.;
+    data_t P_over_rho = 0.;
+    EoS::compute_eos(P_over_rho, vars);
+
     data_t WW = 1. / (1. - v2);
     data_t hh = 1. + vars.eps + P_over_rho;
 

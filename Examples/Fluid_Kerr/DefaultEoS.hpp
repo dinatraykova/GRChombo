@@ -19,8 +19,7 @@ class DefaultEoS
     template <class data_t, template <typename> class vars_t>
     void compute_eos(data_t &P_over_rho, const vars_t<data_t> &vars) const
     {
-        // The pressure value in function of rho
-        P_over_rho = 1. / 3.;
+        P_over_rho = (1. + vars.eps) / 3.;
     }
 };
 
