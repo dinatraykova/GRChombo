@@ -19,8 +19,9 @@ template <class data_t>
 void InitialFluidData::compute(Cell<data_t> current_cell) const
 {
     // load vars
-    FluidCCZ4RHS<PerfectFluid<>>::Vars<data_t> vars;
-    VarsTools::assign(vars, 0.);
+    // FluidCCZ4RHS<PerfectFluid<>>::Vars<data_t> vars;
+    // VarsTools::assign(vars, 0.);
+    const auto metric_vars = current_cell.template load_vars<MetricVars>();
 
     // where am i?
     Coordinates<data_t> coords(current_cell, m_dx, m_params.center);
@@ -31,37 +32,44 @@ void InitialFluidData::compute(Cell<data_t> current_cell) const
     double y = coords.y;
     double z = coords.z;
 
-    // Tensor<1, data_t> vi, Sj;
-    data_t chi_regularised = simd_max(vars.chi, 1e-6);
+    Tensor<1, data_t> vi, Sj;
+    data_t chi_regularised = simd_max(metric_vars.chi, 1e-6);
 
-    // vi[0] = 0.;
-    // vi[1] = 0.;
-    // vi[2] = 0.;
+    FOR(i) { vi[i] = 0.; }
+    data_t D = 0.;
+    data_t tau = 0.;
+    data_t rho = 0.;
+    data_t eps = 0.;
 
     // calculate the field value
-    vars.rho =
+    rho =
         m_params.rho0 * (exp(-pow(rr / m_params.awidth, 2.0))) + m_params.delta;
     data_t v2 = 0.;
-    FOR(i, j) v2 += vars.h[i][j] * vars.vi[i] * vars.vi[j] / chi_regularised;
-    vars.eps = 0.;
-    data_t P_over_rho = 0.;
-    EoS::compute_eos(P_over_rho, vars);
+    FOR(i, j) v2 += metric_vars.h[i][j] * vi[i] * vi[j] / chi_regularised;
+
+    data_t P_over_rho = (1. + eps) / 3.;
+    // data_t P_over_rho = 0.;
+    // EoS::compute_eos(P_over_rho, vars);
 
     data_t WW = 1. / (1. - v2);
-    data_t hh = 1. + vars.eps + P_over_rho;
+    data_t hh = 1. + eps + P_over_rho;
 
-    vars.D = vars.rho * sqrt(WW);
-    vars.tau = vars.rho * (hh * WW - P_over_rho) - vars.D;
+    D = rho * sqrt(WW);
+    tau = rho * (hh * WW - P_over_rho) - D;
     FOR(i)
     {
-        vars.Sj[i] = 0.;
+        Sj[i] = 0.;
         FOR(j)
-        vars.Sj[i] +=
-            vars.rho * hh * WW * vars.h[i][j] * vars.vi[j] / chi_regularised;
+        Sj[i] += rho * hh * WW * metric_vars.h[i][j] * vi[j] / chi_regularised;
     }
 
     // store the vars
-    current_cell.store_vars(vars);
+    // current_cell.store_vars(vars);
+    current_cell.store_vars(rho, c_rho);
+    current_cell.store_vars(vi, GRInterval<c_vi1, c_vi3>());
+    current_cell.store_vars(D, c_D);
+    current_cell.store_vars(Sj, GRInterval<c_Sj1, c_Sj3>());
+    current_cell.store_vars(tau, c_tau);
 }
 
 #endif /* INITIALFLUIDDATA_IMPL_HPP_ */

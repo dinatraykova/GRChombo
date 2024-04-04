@@ -19,6 +19,9 @@
 //! Class which sets the initial fluid matter config
 class InitialFluidData : public EoS
 {
+    template <class data_t>
+    using MetricVars = ADMConformalVars::VarsWithGauge<data_t>;
+
   public:
     //! A structure for the input params for fluid properties and initial
     //! conditions
