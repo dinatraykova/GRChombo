@@ -35,11 +35,45 @@ class InitialFluidData : public EoS
     };
 
     //! The constructor
-    InitialFluidData(params_t a_params, double a_dx);
-
+    InitialFluidData(params_t a_params, double a_dx)
+        : m_dx(a_dx), m_params(a_params)
+    {
+    }
     //! Function to compute the value of all the initial vars on the grid
     //! The constructor
     template <class data_t> void compute(Cell<data_t> current_cell) const;
+
+    //! Structure containing the rhs variables for the matter fields
+    template <class data_t> struct Vars
+    {
+        data_t D;
+        Tensor<1, data_t> Sj;
+        data_t tau;
+        //        data_t Jt;
+        Tensor<1, data_t> vi;
+        data_t rho;
+        data_t eps;
+        //        data_t nn;
+
+        /// Defines the mapping between members of Vars and Chombo grid
+        /// variables (enum in User_Variables)
+        template <typename mapping_function_t>
+        void enum_mapping(mapping_function_t mapping_function)
+        {
+            using namespace VarsTools; // define_enum_mapping is part of
+            // VarsTools
+            define_enum_mapping(mapping_function, c_D, D);
+            define_enum_mapping(mapping_function, GRInterval<c_Sj1, c_Sj3>(),
+                                Sj);
+            define_enum_mapping(mapping_function, c_tau, tau);
+            //            define_enum_mapping(mapping_function, c_Jt, Jt);
+            define_enum_mapping(mapping_function, GRInterval<c_vi1, c_vi3>(),
+                                vi);
+            define_enum_mapping(mapping_function, c_rho, rho);
+            define_enum_mapping(mapping_function, c_eps, eps);
+            //           define_enum_mapping(mapping_function, c_nn, nn);
+        }
+    };
 
   protected:
     double m_dx;

@@ -77,23 +77,6 @@ template <class eos_t = DefaultEoS> class PerfectFluid
         }
     };
 
-    //! Structure containing the rhs variables for the matter fields requiring
-    //!  2nd derivs
-    //    template <class data_t> struct Diff2Vars
-    //{
-    //    data_t rho;
-
-    /// Defines the mapping between members of Vars and Chombo grid
-    ///  variables (enum in User_Variables)
-    //  template <typename mapping_function_t>
-    //  void enum_mapping(mapping_function_t mapping_function)
-    //  {
-    //      VarsTools::define_enum_mapping(mapping_function, c_rho, rho);
-    //        VarsTools::define_enum_mapping(
-    //              mapping_function, GRInterval<c_Avec1, c_Avec3>(), Avec);
-    //      }
-    //};
-
     //! The function which calculates the EM Tensor, given the vars and
     //! derivatives
     template <class data_t, template <typename> class vars_t>
