@@ -31,7 +31,7 @@ void PtoC(const data_t P_over_rho, vars_t<data_t> &vars)
     data_t WW = 1. / (1. - v2);
     data_t hh = 1. + vars.eps + P_over_rho;
 
-    data_t rho_conformal = vars.rho / pow(vars.chi, 1.5);
+    data_t rho_conformal = vars.rho / pow(chi_regularised, 1.5);
 
     vars.D = rho_conformal * sqrt(WW);
     vars.tau = rho_conformal * (hh * WW - P_over_rho) - vars.D;

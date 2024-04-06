@@ -35,9 +35,9 @@ class PositiveDensity
         vi[2] = current_cell.load_vars(c_vi3);
 
         auto make_zero = simd_compare_lt(D, m_min_D);
-        D = simd_conditional(make_zero, m_min_D, D);
+        D = simd_conditional(make_zero, D, m_min_D);
         // tau = simd_conditional(make_zero, tau, 1e-4);
-        FOR(i) vi[i] = simd_conditional(make_zero, m_min_v, vi[i]);
+        FOR(i) vi[i] = simd_conditional(make_zero, vi[i], m_min_v);
 
         // current_cell.store_vars(D, c_D);
         //  current_cell.store_vars(rho, c_rho);

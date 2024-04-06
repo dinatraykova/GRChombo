@@ -69,18 +69,20 @@ class InitialFluidData
         data_t v2 = 0.;
         FOR(i, j) v2 += metric_vars.h[i][j] * vi[i] * vi[j] / chi_regularised;
         data_t eps = 0.;
-        data_t P = rho * (1. + eps) / 3.;
+        data_t P_over_rho = (1. + eps) / 3.;
         data_t WW = 1. / (1. - v2);
-        data_t hh = 1. + eps + P / rho;
+        data_t hh = 1. + eps + P_over_rho;
 
-        data_t D = rho * sqrt(WW);
-        data_t tau = rho * hh * WW - P - D;
+	data_t rho_conformal = rho / pow(chi_regularised, 1.5);
+
+        data_t D = rho_conformal * sqrt(WW);
+        data_t tau = rho_conformal * (hh * WW - P_over_rho) - D;
         FOR(i)
         {
             Sj[i] = 0.;
             FOR(j)
             Sj[i] +=
-                rho * hh * WW * metric_vars.h[i][j] * vi[j] / chi_regularised;
+                rho_conformal * hh * WW * metric_vars.h[i][j] * vi[j] / chi_regularised;
         }
 
         // store the vars
