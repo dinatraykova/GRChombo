@@ -77,6 +77,17 @@ class PrimitiveRecovery
             if (i >= 100)
                 break;
         }
+	data_t hh = 1. + vars.eps + P_over_rho;
+        Tensor<1, data_t> vi_D;
+        FOR(i) vi_D[i] = pow(vars.chi, 1.5) * vars.Sj[i] / (vars.rho * hh * Wa * Wa);
+
+        FOR(i)
+        {
+            vars.vi[i] = 0.;
+            FOR(j) vars.vi[i] += vars.chi * h_UU[i][j] * vi_D[j];
+        }
+
+        current_cell.store_vars(vars);
     }
 };
 
