@@ -47,7 +47,9 @@ G_Newton = 1.0
 fluid_rho0 = 1.0
 fluid_width = 5.
 fluid_delta = 0.2
-	
+lines = 10000
+spacing = 1e-3
+
 # Kerr BH data
 kerr_mass = 1.0
 kerr_spin = 0.5

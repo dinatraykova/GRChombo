@@ -27,6 +27,13 @@ void InitialFluidData::compute(Cell<data_t> current_cell) const
     double y = coords.y;
     double z = coords.z;
 
+    int ind_L = static_cast<int>(floor(rr / m_params.spacing));
+    int ind_H = static_cast<int>(ceil(rr / m_params.spacing));
+    double rho_L = *(m_params.rho_1D + ind_L);
+    double rho_H = *(m_params.rho_1D + ind_H);
+    double rho_interp =
+        rho_L + (rr / m_params.spacing - ind_L) * (rho_H - rho_L);
+
     //    Tensor<1, data_t> vi, Sj;
     data_t chi_regularised = simd_max(metric_vars.chi, 1e-6);
 

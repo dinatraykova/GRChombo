@@ -15,6 +15,7 @@
 #include "UserVariables.hpp" //This files needs NUM_VARS - total no. components
 #include "VarsTools.hpp"
 #include "simd.hpp"
+#include <cmath>
 
 //! Class which sets the initial fluid matter config
 class InitialFluidData : public EoS
@@ -32,6 +33,8 @@ class InitialFluidData : public EoS
         double rho0;
         double awidth;
         double delta;
+        double spacing;
+        double *rho_1D;
     };
 
     //! The constructor
