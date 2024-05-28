@@ -45,14 +45,14 @@ void InitialFluidData::compute(Cell<data_t> current_cell) const
     v2 += metric_vars.h[i][j] * matter_vars.vi[i] * matter_vars.vi[j] /
           chi_regularised;
 
-    data_t P_over_rho = 0.;
-    EoS::compute_eos(P_over_rho, matter_vars);
+    data_t P_of_rho = 0.;
+    EoS::compute_eos(P_of_rho, matter_vars);
 
     data_t WW = 1. / (1. - v2);
-    data_t hh = 1. + matter_vars.eps + P_over_rho;
+    data_t hh = 1. + matter_vars.eps + P_of_rho / matter_vars.rho;
 
     matter_vars.D = matter_vars.rho * sqrt(WW);
-    matter_vars.tau = matter_vars.rho * (hh * WW - P_over_rho) - matter_vars.D;
+    matter_vars.tau = matter_vars.rho * hh * WW - P_of_rho - matter_vars.D;
     FOR(i)
     {
         matter_vars.Sj[i] = 0.;

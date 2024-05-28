@@ -15,7 +15,7 @@ namespace ConservedQuantities
 {
 // Primitive to conservative variables
 template <class data_t, template <typename> class vars_t>
-void PtoC(const data_t P_over_rho, vars_t<data_t> &vars)
+void PtoC(const data_t P_of_rho, vars_t<data_t> &vars)
 {
     data_t chi_regularised = simd_max(1e-6, vars.chi);
     Tensor<1, data_t> vi_D;
@@ -29,10 +29,10 @@ void PtoC(const data_t P_over_rho, vars_t<data_t> &vars)
     FOR(i) v2 += vars.vi[i] * vi_D[i];
 
     data_t WW = 1. / (1. - v2);
-    data_t hh = 1. + vars.eps + P_over_rho;
+    data_t hh = 1. + vars.eps + P_of_rho / vars.rho;
 
     vars.D = vars.rho * sqrt(WW);
-    vars.tau = vars.rho * (hh * WW - P_over_rho) - vars.D;
+    vars.tau = vars.rho * hh * WW - P_of_rho - vars.D;
 
     // S_j (note lower index) = - n^a T_ai
     FOR(i) { vars.Sj[i] = vars.rho * hh * WW * vi_D[i]; }

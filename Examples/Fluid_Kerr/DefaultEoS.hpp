@@ -17,9 +17,9 @@ class DefaultEoS
 
     //! Set the pressure of the perfect fluid here to zero
     template <class data_t, template <typename> class vars_t>
-    void compute_eos(data_t &P_over_rho, const vars_t<data_t> &vars) const
+    void compute_eos(data_t &P_of_rho, const vars_t<data_t> &vars) const
     {
-        P_over_rho = (1. + vars.eps) / 3.;
+        P_of_rho = vars.rho * (1. + vars.eps) / 3.;
     }
 };
 

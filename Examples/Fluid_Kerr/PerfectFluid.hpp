@@ -28,7 +28,7 @@
      the matter evolution terms.
      It is templated over an equation of state function eos_t, which the
      user must specify in a class, although a default is provided which
-     sets P_over_rho to (1 + eps) / 3.
+     sets P_of_rho to rho * (1 + eps) / 3.
 */
 template <class eos_t = DefaultEoS> class PerfectFluid
 {

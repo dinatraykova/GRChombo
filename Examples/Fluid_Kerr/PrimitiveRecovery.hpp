@@ -39,7 +39,7 @@ class PrimitiveRecovery : public EoS
         data_t tolerance = 1e-8;
         data_t Wa2, Wa, xn, diff;
 
-        data_t P_over_rho = 0.;
+        data_t P_of_rho = 0.;
 
         data_t S2 = 0.;
         FOR(i, j) S2 += vars.chi * h_UU[i][j] * vars.Sj[i] * vars.Sj[j];
@@ -51,9 +51,9 @@ class PrimitiveRecovery : public EoS
 
         vars.rho = vars.D / Wa;
         vars.eps = -1. + xa / Wa * (1. - Wa * Wa) + Wa * (1. + q);
-        EoS::compute_eos(P_over_rho, vars);
+        EoS::compute_eos(P_of_rho, vars);
 
-        xn = Wa * (1. + vars.eps + P_over_rho);
+        xn = Wa * (1. + vars.eps + P_of_rho / vars.rho);
         diff = abs(xn - xa);
 
         int i = 0;
@@ -65,15 +65,16 @@ class PrimitiveRecovery : public EoS
 
             vars.rho = vars.D / Wa;
             vars.eps = -1. + xa / Wa * (1. - Wa * Wa) + Wa * (1. + q);
-            P_over_rho = (1. + vars.eps) / 3.;
+            // P_over_rho = (1. + vars.eps) / 3.;
+            EoS::compute_eos(P_of_rho, vars);
 
-            xn = Wa * (1. + vars.eps + P_over_rho);
+            xn = Wa * (1. + vars.eps + P_of_rho / vars.rho);
             diff = abs(xn - xa);
             xa = xn;
             if (i >= 100)
                 break;
         }
-        data_t hh = 1. + vars.eps + P_over_rho;
+        data_t hh = 1. + vars.eps + P_of_rho / vars.rho;
         Tensor<1, data_t> vi_D;
         FOR(i) vi_D[i] = vars.Sj[i] / vars.rho / hh / Wa / Wa;
 

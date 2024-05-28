@@ -14,12 +14,15 @@ class EoS
     //! The constructor
     EoS() {}
 
-    //! Set the pressure of the perfect fluid here
+    //! Set the pressure of Gamma-2 polytrope
     template <class data_t, template <typename> class vars_t>
-    void compute_eos(data_t &P_over_rho, const vars_t<data_t> &vars) const
+    void compute_eos(data_t &P_of_rho, const vars_t<data_t> &vars) const
     {
         // The pressure value as a function of rho
-        P_over_rho = (1. + vars.eps) / 3.;
+        const double K = 100.;
+        const double n = 1.;
+        const double Gamma = 1. + 1. / n;
+        P_of_rho = K * pow(vars.rho, Gamma);
     }
 };
 
