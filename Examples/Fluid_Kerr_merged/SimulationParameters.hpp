@@ -37,21 +37,6 @@ class SimulationParameters : public SimulationParametersBase
         pp.load("fluid_delta", initial_params.delta, 0.2);
         pp.load("lambda", lambda, 1.); // eigenvalue for numerical flux
 
-        // Reading data
-	//        pp.load("spacing", initial_params.spacing);
-        //pp.load("lines", lines);
-        //double rho_1D[lines];
-
-        //double tmp_data;
-        //ifstream read_file("rho_vs_r.csv");
-
-        //for (int i = 0; i < lines; ++i)
-        //{
-	//   read_file >> tmp_data;
-	//  rho_1D[i] = tmp_data;
-        //}
-        //initial_params.rho_1D = rho_1D;
-
         // Initial Kerr data
         pp.load("kerr_mass", kerr_params.mass);
         pp.load("kerr_spin", kerr_params.spin);
@@ -80,7 +65,6 @@ class SimulationParameters : public SimulationParametersBase
     // Initial data for matter and potential and BH
     double G_Newton;
     double lambda;
-  //int lines;
     InitialFluidData::params_t initial_params;
     KerrBH::params_t kerr_params;
 };

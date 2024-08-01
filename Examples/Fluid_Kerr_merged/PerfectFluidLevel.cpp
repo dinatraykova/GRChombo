@@ -39,7 +39,8 @@ void PerfectFluidLevel::specificAdvance()
     // Enforce trace free A_ij and positive chi and alpha
     BoxLoops::loop(make_compute_pack(TraceARemoval(), PositiveChiAndAlpha(),
                                      PositiveDensity()),
-                   m_state_new, m_state_new, INCLUDE_GHOST_CELLS, disable_simd());
+                   m_state_new, m_state_new, INCLUDE_GHOST_CELLS,
+                   disable_simd());
 
     // Check for nan's
     if (m_p.nan_check)
@@ -73,10 +74,10 @@ void PerfectFluidLevel::prePlotLevel()
     fillAllGhosts();
     EoS eos;
     PerfectFluidEoS perfect_fluid(m_dx, m_p.lambda, eos);
-    BoxLoops::loop(MatterConstraints<PerfectFluidEoS>(perfect_fluid, m_dx,
-                                                      m_p.G_Newton, c_Ham,
-                                                      Interval(c_Mom1, c_Mom3)),
-                   m_state_new, m_state_diagnostics, EXCLUDE_GHOST_CELLS, disable_simd());
+    BoxLoops::loop(
+        MatterConstraints<PerfectFluidEoS>(perfect_fluid, m_dx, m_p.G_Newton,
+                                           c_Ham, Interval(c_Mom1, c_Mom3)),
+        m_state_new, m_state_diagnostics, EXCLUDE_GHOST_CELLS, disable_simd());
 }
 #endif
 
@@ -88,7 +89,7 @@ void PerfectFluidLevel::specificEvalRHS(GRLevelData &a_soln, GRLevelData &a_rhs,
     BoxLoops::loop(make_compute_pack(TraceARemoval(), PositiveDensity(),
                                      PositiveChiAndAlpha(),
                                      PrimitiveRecovery()),
-                   a_soln, a_soln, INCLUDE_GHOST_CELLS/*, disable_simd()*/);
+                   a_soln, a_soln, INCLUDE_GHOST_CELLS /*, disable_simd()*/);
 
     // Calculate MatterCCZ4 right hand side with matter_t = ScalarField
     EoS eos;
@@ -100,7 +101,8 @@ void PerfectFluidLevel::specificEvalRHS(GRLevelData &a_soln, GRLevelData &a_rhs,
             // FourthOrderDerivatives>
             my_ccz4_matter(perfect_fluid, m_p.ccz4_params, m_dx, m_p.sigma,
                            m_p.formulation, m_p.G_Newton);
-        BoxLoops::loop(my_ccz4_matter, a_soln, a_rhs, EXCLUDE_GHOST_CELLS, disable_simd());
+        BoxLoops::loop(my_ccz4_matter, a_soln, a_rhs, EXCLUDE_GHOST_CELLS,
+                       disable_simd());
     }
     else if (m_p.max_spatial_derivative_order == 6)
     {
@@ -109,7 +111,8 @@ void PerfectFluidLevel::specificEvalRHS(GRLevelData &a_soln, GRLevelData &a_rhs,
             // FourthOrderDerivatives>
             my_ccz4_matter(perfect_fluid, m_p.ccz4_params, m_dx, m_p.sigma,
                            m_p.formulation, m_p.G_Newton);
-        BoxLoops::loop(my_ccz4_matter, a_soln, a_rhs, EXCLUDE_GHOST_CELLS, disable_simd());
+        BoxLoops::loop(my_ccz4_matter, a_soln, a_rhs, EXCLUDE_GHOST_CELLS,
+                       disable_simd());
     }
 }
 
@@ -121,7 +124,7 @@ void PerfectFluidLevel::specificUpdateODE(GRLevelData &a_soln,
     BoxLoops::loop(make_compute_pack(TraceARemoval(), PositiveDensity(),
                                      PositiveChiAndAlpha(),
                                      PrimitiveRecovery()),
-                   a_soln, a_soln, INCLUDE_GHOST_CELLS/*, disable_simd()*/);
+                   a_soln, a_soln, INCLUDE_GHOST_CELLS /*, disable_simd()*/);
 }
 
 void PerfectFluidLevel::preTagCells()
@@ -134,5 +137,6 @@ void PerfectFluidLevel::computeTaggingCriterion(
     FArrayBox &tagging_criterion, const FArrayBox &current_state,
     const FArrayBox &current_state_diagnostics)
 {
-    BoxLoops::loop(ChiTaggingCriterion(m_dx), current_state, tagging_criterion, disable_simd());
+    BoxLoops::loop(ChiTaggingCriterion(m_dx), current_state, tagging_criterion,
+                   disable_simd());
 }

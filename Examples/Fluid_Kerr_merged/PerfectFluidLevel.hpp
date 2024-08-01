@@ -47,7 +47,8 @@ class PerfectFluidLevel : public GRAMRLevel
 
     //! Things to do in UpdateODE step, after soln + rhs update
     virtual void specificUpdateODE(GRLevelData &a_soln,
-                                   const GRLevelData &a_rhs, Real a_dt) override;
+                                   const GRLevelData &a_rhs,
+                                   Real a_dt) override;
 
     /// Things to do before tagging cells (i.e. filling ghosts)
     virtual void preTagCells() override;

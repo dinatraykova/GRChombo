@@ -11,12 +11,12 @@
 #include "Cell.hpp"
 #include "DefaultEoS.hpp"
 #include "EoS.hpp"
-#include "simd.hpp"
 #include "Tensor.hpp"
 #include "TensorAlgebra.hpp"
 #include "UserVariables.hpp"
 #include "UsingNamespace.H"
 #include "VarsTools.hpp"
+#include "simd.hpp"
 
 // template <class eos_t = DefaultEoS>
 class PrimitiveRecovery : public EoS
@@ -51,7 +51,7 @@ class PrimitiveRecovery : public EoS
         data_t xa = 1.5 * (1. + q);
         Wa = sqrt(pow(xa, 2.) / (pow(xa, 2.) - r));
 
-        vars.rho = vars.D / Wa;
+        vars.rho = pow(vars.chi, 1.5) * vars.D / Wa;
         vars.eps = -1. + xa / Wa * (1. - Wa * Wa) + Wa * (1. + q);
         EoS::compute_eos(P_of_rho, vars);
         xn = Wa * (1. + vars.eps + P_of_rho / vars.rho);
@@ -59,16 +59,16 @@ class PrimitiveRecovery : public EoS
 
         int i = 0;
 
-	data_t empty;
-	while (!simd_all_false(simd_compare_lt(tolerance, diff), empty))
+        data_t empty;
+        while (!simd_all_false(simd_compare_lt(tolerance, diff), empty))
         {
             i++;
             Wa = sqrt(pow(xa, 2.) / (pow(xa, 2.) - r));
 
-            vars.rho = vars.D / Wa;
+            vars.rho = pow(vars.chi, 1.5) * vars.D / Wa;
             vars.eps = -1. + xa / Wa * (1. - Wa * Wa) + Wa * (1. + q);
-	    EoS::compute_eos(P_of_rho, vars);
-	    xn = Wa * (1. + vars.eps + P_of_rho / vars.rho);
+            EoS::compute_eos(P_of_rho, vars);
+            xn = Wa * (1. + vars.eps + P_of_rho / vars.rho);
             diff = abs(xn - xa);
             xa = xn;
             if (i >= 100)
