@@ -45,9 +45,10 @@ void InitialFluidData::compute(Cell<data_t> current_cell) const
     data_t hh = 1. + matter_vars.eps + P_of_rho / matter_vars.rho;
 
     data_t rho_conformal = matter_vars.rho / pow(chi_regularised, 1.5);
+    data_t P_conformal = P_of_rho / pow(chi_regularised, 1.5);
 
     matter_vars.D = rho_conformal * sqrt(WW);
-    matter_vars.tau = rho_conformal * hh * WW - P_of_rho - matter_vars.D;
+    matter_vars.tau = rho_conformal * hh * WW - P_conformal - matter_vars.D;
 
     FOR(i)
     {

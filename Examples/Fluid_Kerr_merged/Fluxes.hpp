@@ -42,6 +42,7 @@ vars_t<data_t> compute_flux(const data_t P_of_rho, const vars_t<data_t> &vars,
     data_t hh = 1. + vars.eps + P_of_rho / vars.rho;
 
     data_t rho_conformal = vars.rho / pow(vars.chi, 1.5);
+    data_t P_conformal = P_of_rho / pow(chi_regularised, 1.5);
 
     FOR(j)
     {
@@ -49,7 +50,7 @@ vars_t<data_t> compute_flux(const data_t P_of_rho, const vars_t<data_t> &vars,
             vars.lapse * rho_conformal * hh * WW * vars.vi[idir] * vi_D[j] -
             vars.shift[idir] * vars.Sj[j];
         FOR(k)
-        out.Sj[j] += vars.lapse * P_of_rho * h_UU[idir][k] * vars.h[j][k];
+        out.Sj[j] += vars.lapse * P_conformal * h_UU[idir][k] * vars.h[j][k];
     }
 
     out.tau = vars.lapse * (Sj_U[idir] - vars.D * vars.vi[idir]) -
