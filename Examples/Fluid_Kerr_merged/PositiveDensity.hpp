@@ -62,7 +62,7 @@ class PositiveDensity
         data_t S2_over_chi = 0.;
         FOR(i, j) S2_over_chi += vars.h[i][j] * vars.Sj[i] * vars.Sj[j];
 
-        // S^2 <= (D + tau)^2
+        //  S^2 <= (D + tau)^2
         data_t factor =
             simd_min(1., vars.chi * (vars.D + vars.tau) / sqrt(S2_over_chi));
         FOR(i) vars.Sj[i] *= factor;

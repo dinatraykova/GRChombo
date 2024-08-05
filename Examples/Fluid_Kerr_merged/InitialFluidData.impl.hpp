@@ -27,7 +27,6 @@ void InitialFluidData::compute(Cell<data_t> current_cell) const
     double y = coords.y;
     double z = coords.z;
 
-    //    Tensor<1, data_t> vi, Sj;
     data_t chi_regularised = simd_max(metric_vars.chi, 1e-6);
 
     // calculate the field value
@@ -45,10 +44,11 @@ void InitialFluidData::compute(Cell<data_t> current_cell) const
     data_t WW = 1. / (1. - v2);
     data_t hh = 1. + matter_vars.eps + P_of_rho / matter_vars.rho;
 
-    data_t rho_conformal = rho / pow(chi_regularised, 1.5);
+    data_t rho_conformal = matter_vars.rho / pow(chi_regularised, 1.5);
 
     matter_vars.D = rho_conformal * sqrt(WW);
     matter_vars.tau = rho_conformal * hh * WW - P_of_rho - matter_vars.D;
+
     FOR(i)
     {
         matter_vars.Sj[i] = 0.;
@@ -59,10 +59,6 @@ void InitialFluidData::compute(Cell<data_t> current_cell) const
 
     // store the vars
     current_cell.store_vars(matter_vars);
-    using namespace TensorAlgebra;
-
-    metric_vars.K += 24. * M_PI * rho_conformal;
-    current_cell.store_vars(metric_vars);
 }
 
 #endif /* INITIALFLUIDDATA_IMPL_HPP_ */
