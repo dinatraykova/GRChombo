@@ -79,6 +79,8 @@ void PerfectFluid<eos_t>::add_matter_rhs(
     data_t divshift = TensorAlgebra::compute_trace(d1.shift);
     data_t chi_regularised = simd_max(vars.chi, 1e-6);
     data_t advec_chi = 0.;
+    data_t lambda = simd_max(sqrt(2. / vars.lapse),
+                             1 / (vars.lapse * sqrt(chi_regularised)));
     FOR(i) advec_chi += vars.shift[i] * d1.chi[i] / chi_regularised;
     rhs.D = source.D /*+ vars.D * (vars.lapse * vars.K - divshift +
                        GR_SPACEDIM / 2. * advec_chi)*/
@@ -112,8 +114,8 @@ void PerfectFluid<eos_t>::add_matter_rhs(
         FOR(j) { vars_right_p.vi[j] = rp.vi[j][idir]; }
         my_eos.compute_eos(P_of_rho, vars_right_p);
         ConservedQuantities::PtoC(P_of_rho, vars_right_p);
-        vars_t<data_t> flux_right_p = Fluxes::compute_num_flux(
-            P_of_rho, vars_right_p, idir, m_lambda, -1);
+        vars_t<data_t> flux_right_p =
+            Fluxes::compute_num_flux(P_of_rho, vars_right_p, idir, lambda, -1);
 
         vars_t<data_t> vars_right_m = vars;
         vars_right_m.rho = rm.rho[idir];
@@ -122,7 +124,7 @@ void PerfectFluid<eos_t>::add_matter_rhs(
         my_eos.compute_eos(P_of_rho, vars_right_m);
         ConservedQuantities::PtoC(P_of_rho, vars_right_m);
         vars_t<data_t> flux_right_m =
-            Fluxes::compute_num_flux(P_of_rho, vars_right_m, idir, m_lambda, 1);
+            Fluxes::compute_num_flux(P_of_rho, vars_right_m, idir, lambda, 1);
 
         rhs.D += -1. / (2. * m_dx) * (flux_right_p.D + flux_right_m.D);
         FOR(j)
@@ -142,7 +144,7 @@ void PerfectFluid<eos_t>::add_matter_rhs(
         my_eos.compute_eos(P_of_rho, vars_left_p);
         ConservedQuantities::PtoC(P_of_rho, vars_left_p);
         vars_t<data_t> flux_left_p =
-            Fluxes::compute_num_flux(P_of_rho, vars_left_p, idir, m_lambda, -1);
+            Fluxes::compute_num_flux(P_of_rho, vars_left_p, idir, lambda, -1);
 
         vars_t<data_t> vars_left_m = vars;
         vars_left_m.rho = lm.rho[idir];
@@ -151,7 +153,7 @@ void PerfectFluid<eos_t>::add_matter_rhs(
         my_eos.compute_eos(P_of_rho, vars_left_m);
         ConservedQuantities::PtoC(P_of_rho, vars_left_m);
         vars_t<data_t> flux_left_m =
-            Fluxes::compute_num_flux(P_of_rho, vars_left_m, idir, m_lambda, 1);
+            Fluxes::compute_num_flux(P_of_rho, vars_left_m, idir, lambda, 1);
 
         rhs.D += 1. / (2. * m_dx) * (flux_left_p.D + flux_left_m.D);
         FOR(j)
