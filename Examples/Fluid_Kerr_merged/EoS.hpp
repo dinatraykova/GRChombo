@@ -22,7 +22,7 @@ class EoS
         const double K = 1. / 3.; // 100.;
         const double n = 1.;
         const double Gamma = 1.; // + 1. / n;
-        P_of_rho = K * pow(vars.rho, Gamma);
+        P_of_rho = K * pow((vars.rho * (1 + vars.eps)), Gamma);
     }
 };
 

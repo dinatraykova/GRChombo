@@ -76,7 +76,8 @@ class PrimitiveRecovery : public EoS
         }
         data_t hh = 1. + vars.eps + P_of_rho / vars.rho;
         Tensor<1, data_t> vi_D;
-        FOR(i) vi_D[i] = vars.Sj[i] / vars.rho / hh / Wa / Wa;
+        FOR(i)
+        vi_D[i] = pow(vars.chi, 1.5) * vars.Sj[i] / vars.rho / hh / Wa / Wa;
 
         FOR(i)
         {
