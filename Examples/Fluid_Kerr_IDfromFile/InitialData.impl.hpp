@@ -20,7 +20,6 @@ void InitialData::compute(Cell<data_t> current_cell) const
     Tensor<2, data_t> spherical_g;
     Tensor<2, data_t> spherical_K;
     Tensor<1, data_t> spherical_shift;
-    data_t kerr_lapse;
 
     // The cartesian variables and coords
     auto metric_vars = current_cell.template load_vars<MetricVars>();
@@ -28,13 +27,37 @@ void InitialData::compute(Cell<data_t> current_cell) const
     Coordinates<data_t> coords(current_cell, m_dx, m_params.center);
 
     // Compute the components in spherical coords as per 1401.1548
-    compute_kerr(spherical_g, spherical_K, spherical_shift, kerr_lapse, coords);
+    compute_spherical(spherical_g, spherical_K, spherical_shift, coords);
 
     // work out where we are on the grid
     data_t x = coords.x;
     double y = coords.y;
     double z = coords.z;
+    data_t rr = coords.get_radius();
+    data_t rr2 = rr * rr;
 
+    int ind_L = static_cast<int>(floor(rr / m_params.spacing));
+    int ind_H = static_cast<int>(ceil(rr / m_params.spacing));
+    double rho_L = *(m_params.rho_1D + ind_L);
+    double rho_H = *(m_params.rho_1D + ind_H);
+    double rho_interp =
+        rho_L + (rr / m_params.spacing - ind_L) * (rho_H - rho_L);
+
+    double eps_L = *(m_params.eps_1D + ind_L);
+    double eps_H = *(m_params.eps_1D + ind_H);
+    double eps_interp =
+        eps_L + (rr / m_params.spacing - ind_L) * (eps_H - eps_L);
+
+    double lapse_L = *(m_params.lapse_1D + ind_L);
+    double lapse_H = *(m_params.lapse_1D + ind_H);
+    double lapse_interp =
+        lapse_L + (rr / m_params.spacing - lapse_L) * (lapse_H - lapse_L);
+
+    double phi_L = *(m_params.phi_1D + ind_L);
+    double phi_H = *(m_params.phi_1D + ind_H);
+    double phi_interp =
+        phi_L + (rr / m_params.spacing - ind_L) * (phi_H - phi_L);
+    
     using namespace CoordinateTransformations;
     // Convert spherical components to cartesian components using coordinate
     // transforms
@@ -46,7 +69,7 @@ void InitialData::compute(Cell<data_t> current_cell) const
     // Convert to BSSN vars
     data_t deth = compute_determinant(metric_vars.h);
     auto h_UU = compute_inverse_sym(metric_vars.h);
-    metric_vars.chi = pow(deth, -1. / 3.);
+    metric_vars.chi = exp(-4.*phi_interp); //pow(deth, -1. / 3.);
 
     // transform extrinsic curvature into A and TrK - note h is still non
     // conformal version which is what we need here
@@ -61,8 +84,8 @@ void InitialData::compute(Cell<data_t> current_cell) const
     }
 
     // use a pre collapsed lapse, could also use analytic one
-    // metric_vars.lapse = kerr_lapse;
-    metric_vars.lapse = pow(metric_vars.chi, 0.5);
+    metric_vars.lapse = lapse_interp;
+    //metric_vars.lapse = pow(metric_vars.chi, 0.5);
 
     // Populate the variables on the grid
     // NB We stil need to set Gamma^i which is NON ZERO
@@ -75,21 +98,13 @@ void InitialData::compute(Cell<data_t> current_cell) const
     // auto matter_vars = current_cell.template load_vars<Vars>();
     VarsTools::assign(matter_vars, 0.);
 
-    // where am i?
-    //    Coordinates<data_t> coords(current_cell, m_dx, m_params.center);
-    data_t rr = coords.get_radius();
-    data_t rr2 = rr * rr;
-
-    //    data_t x = coords.x;
-    // double y = coords.y;
-    // double z = coords.z;
-
     data_t chi_regularised = simd_max(metric_vars.chi, 1e-6);
 
     // calculate the field value
-    matter_vars.rho =
-        m_params.rho0; // * (exp(-pow(rr / 2. / m_params.awidth, 2.0))) +
+    matter_vars.rho = rho_interp;
+      //m_params.rho0 * (exp(-pow(rr / 2. / m_params.awidth, 2.0))) +
                        // m_params.delta;
+    matter_vars.eps = eps_interp;
     data_t v2 = 0.;
     FOR(i, j)
     v2 += metric_vars.h[i][j] * matter_vars.vi[i] * matter_vars.vi[j] /
@@ -120,10 +135,9 @@ void InitialData::compute(Cell<data_t> current_cell) const
 }
 
 template <class data_t>
-void InitialData::compute_kerr(Tensor<2, data_t> &spherical_g,
+void InitialData::compute_spherical(Tensor<2, data_t> &spherical_g,
                                Tensor<2, data_t> &spherical_K,
                                Tensor<1, data_t> &spherical_shift,
-                               data_t &kerr_lapse,
                                const Coordinates<data_t> coords) const
 {
     // Kerr black hole params - mass M and spin a
@@ -150,33 +164,33 @@ void InitialData::compute_kerr(Tensor<2, data_t> &spherical_g,
     data_t sin_theta2 = sin_theta * sin_theta;
 
     // calculate useful metric quantities
-    double r_plus = M + sqrt(M * M - a * a);
-    double r_minus = M - sqrt(M * M - a * a);
+    //double r_plus = M + sqrt(M * M - a * a);
+    //double r_minus = M - sqrt(M * M - a * a);
 
     // The Boyer-Lindquist coordinate
-    data_t r_BL = r * pow(1.0 + 0.25 * r_plus / r, 2.0);
+    //data_t r_BL = r * pow(1.0 + 0.25 * r_plus / r, 2.0);
 
     // Other useful quantities per 1001.4077
-    data_t Sigma = r_BL * r_BL + a * a * cos_theta2;
-    data_t Delta = r_BL * r_BL - 2.0 * M * r_BL + a * a;
+    //data_t Sigma = r_BL * r_BL + a * a * cos_theta2;
+    // data_t Delta = r_BL * r_BL - 2.0 * M * r_BL + a * a;
     // In the paper this is just 'A', but not to be confused with A_ij
-    data_t AA = pow(r_BL * r_BL + a * a, 2.0) - Delta * a * a * sin_theta2;
+    //data_t AA = pow(r_BL * r_BL + a * a, 2.0) - Delta * a * a * sin_theta2;
     // The rr component of the conformal spatial matric
-    data_t gamma_rr =
-        Sigma * pow(r + 0.25 * r_plus, 2.0) / (r * r2 * (r_BL - r_minus));
+    //data_t gamma_rr = 1;
+    //        Sigma * pow(r + 0.25 * r_plus, 2.0) / (r * r2 * (r_BL - r_minus));
 
     // Metric in semi isotropic Kerr-Schild coordinates, r, theta (t or th), phi
     // (p)
     FOR(i, j) { spherical_g[i][j] = 0.0; }
-    spherical_g[0][0] = gamma_rr;                // gamma_rr
-    spherical_g[1][1] = Sigma;                   // gamma_tt
-    spherical_g[2][2] = AA / Sigma * sin_theta2; // gamma_pp
+    spherical_g[0][0] = 1.;                   // gamma_rr
+    spherical_g[1][1] = r2;                   // gamma_tt
+    spherical_g[2][2] = r2 * sin_theta2;      // gamma_pp
 
     // Extrinsic curvature
     FOR(i, j) { spherical_K[i][j] = 0.0; }
 
     // set non zero elements of Krtp - K_rp, K_tp
-    spherical_K[0][2] =
+    /*spherical_K[0][2] = 
         a * M * sin_theta2 / (Sigma * sqrt(AA * Sigma)) *
         (3.0 * pow(r_BL, 4.0) + 2 * a * a * r_BL * r_BL - pow(a, 4.0) -
          a * a * (r_BL * r_BL - a * a) * sin_theta2) *
@@ -185,14 +199,14 @@ void InitialData::compute_kerr(Tensor<2, data_t> &spherical_g,
     spherical_K[2][1] = -2.0 * pow(a, 3.0) * M * r_BL * cos_theta * sin_theta *
                         sin_theta2 / (Sigma * sqrt(AA * Sigma)) *
                         (r - 0.25 * r_plus) * sqrt(r_BL / r - r_minus / r);
-    spherical_K[1][2] = spherical_K[2][1];
+			spherical_K[1][2] = spherical_K[2][1];*/
     // set the analytic lapse
-    kerr_lapse = sqrt(Delta * Sigma / AA);
+    //kerr_lapse = sqrt(Delta * Sigma / AA);
 
     // set the shift (only the phi component is non zero)
     spherical_shift[0] = 0.0;
     spherical_shift[1] = 0.0;
-    spherical_shift[2] = -2.0 * M * a * r_BL / AA;
+    spherical_shift[2] = 0.0; //-2.0 * M * a * r_BL / AA;
 }
 
 #endif /* INITIALDATA_IMPL_HPP_ */

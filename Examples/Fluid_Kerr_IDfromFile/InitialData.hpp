@@ -35,7 +35,10 @@ class InitialData : public EoS
         double awidth;
         double delta;
         double spacing;
-        double *data_1D;
+        double *rho_1D;
+        double *eps_1D;
+        double *lapse_1D;
+        double *phi_1D;
 
         double mass; //!<< The mass of the Kerr BH
         double spin; //!< The spin param a = J/M, so 0 <= |a| <= M
@@ -94,14 +97,13 @@ class InitialData : public EoS
   protected:
     //! Function which computes the components of the metric in spherical coords
     template <class data_t>
-    void compute_kerr(
+    void compute_spherical(
         Tensor<2, data_t>
             &spherical_g, //!<< The spatial metric in spherical coords
         Tensor<2, data_t>
             &spherical_K, //!<< The extrinsic curvature in spherical coords
         Tensor<1, data_t>
             &spherical_shift, //!<< The spherical components of the shift
-        data_t &kerr_lapse,   //!<< The lapse for the kerr solution
         const Coordinates<data_t> coords //!<< Coords of current cell
     ) const;
 };
