@@ -69,7 +69,8 @@ void InitialData::compute(Cell<data_t> current_cell) const
     // Convert to BSSN vars
     data_t deth = compute_determinant(metric_vars.h);
     auto h_UU = compute_inverse_sym(metric_vars.h);
-    metric_vars.chi = exp(-4.*phi_interp); //pow(deth, -1. / 3.);
+    //metric_vars.chi = exp(-4.*phi_interp); //pow(deth, -1. / 3.);
+    metric_vars.chi = pow(deth, -1. / 3.); 
 
     // transform extrinsic curvature into A and TrK - note h is still non
     // conformal version which is what we need here
@@ -84,8 +85,8 @@ void InitialData::compute(Cell<data_t> current_cell) const
     }
 
     // use a pre collapsed lapse, could also use analytic one
-    metric_vars.lapse = lapse_interp;
-    //metric_vars.lapse = pow(metric_vars.chi, 0.5);
+    //metric_vars.lapse = lapse_interp;
+    metric_vars.lapse = pow(metric_vars.chi, 0.5);
 
     // Populate the variables on the grid
     // NB We stil need to set Gamma^i which is NON ZERO
@@ -101,10 +102,10 @@ void InitialData::compute(Cell<data_t> current_cell) const
     data_t chi_regularised = simd_max(metric_vars.chi, 1e-6);
 
     // calculate the field value
-    matter_vars.rho = rho_interp;
+    matter_vars.rho = m_params.rho0; // rho_interp;
       //m_params.rho0 * (exp(-pow(rr / 2. / m_params.awidth, 2.0))) +
                        // m_params.delta;
-    matter_vars.eps = eps_interp;
+    //matter_vars.eps = eps_interp;
     data_t v2 = 0.;
     FOR(i, j)
     v2 += metric_vars.h[i][j] * matter_vars.vi[i] * matter_vars.vi[j] /

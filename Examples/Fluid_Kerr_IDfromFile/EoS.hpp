@@ -19,10 +19,10 @@ class EoS
     void compute_eos(data_t &P_of_rho, const vars_t<data_t> &vars) const
     {
         // The pressure value as a function of rho
-        const double K = 1. / 3.; // 100.;
+        const double K = 100.;
         const double n = 1.;
-        const double Gamma = 1.; // + 1. / n;
-        P_of_rho = K * pow((vars.rho * (1 + vars.eps)), Gamma);
+        const double Gamma = 1. + 1. / n;
+        P_of_rho = K * pow(vars.rho, Gamma);
     }
 };
 

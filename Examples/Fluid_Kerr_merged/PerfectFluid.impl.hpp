@@ -79,8 +79,8 @@ void PerfectFluid<eos_t>::add_matter_rhs(
     data_t divshift = TensorAlgebra::compute_trace(d1.shift);
     data_t chi_regularised = simd_max(vars.chi, 1e-6);
     data_t advec_chi = 0.;
-    data_t lambda = simd_max(sqrt(2. / vars.lapse),
-                             1 / (vars.lapse * sqrt(chi_regularised)));
+    double lambda = 1.; //simd_max(sqrt(2. / vars.lapse),
+    //   1 / (vars.lapse * sqrt(chi_regularised)));
     FOR(i) advec_chi += vars.shift[i] * d1.chi[i] / chi_regularised;
     rhs.D = source.D /*+ vars.D * (vars.lapse * vars.K - divshift +
                        GR_SPACEDIM / 2. * advec_chi)*/
