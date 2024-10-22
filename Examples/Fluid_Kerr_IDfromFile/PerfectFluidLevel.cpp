@@ -20,8 +20,8 @@
 #include "NewMatterConstraints.hpp"
 
 // For tag cells
-// #include "FixedGridsTaggingCriterion.hpp"
-#include "ChiTaggingCriterion.hpp"
+ #include "FixedGridsTaggingCriterion.hpp"
+//#include "ChiTaggingCriterion.hpp"
 
 // Problem specific includes
 #include "ComputePack.hpp"
@@ -38,7 +38,8 @@ void PerfectFluidLevel::specificAdvance()
 {
     // Enforce trace free A_ij and positive chi and alpha
     BoxLoops::loop(make_compute_pack(TraceARemoval(), PositiveChiAndAlpha(),
-                                     PositiveDensity()),
+                                     PositiveDensity(m_p.min_D),
+				     PrimitiveRecovery()),
                    m_state_new, m_state_new, INCLUDE_GHOST_CELLS,
                    disable_simd());
 
@@ -70,14 +71,14 @@ void PerfectFluidLevel::initialData()
 // Things to do before outputting a checkpoint file
 void PerfectFluidLevel::prePlotLevel()
 {
-    fillAllGhosts();
+  fillAllGhosts();
     EoS eos;
     PerfectFluidEoS perfect_fluid(m_dx, m_p.lambda, eos);
     BoxLoops::loop(
         MatterConstraints<PerfectFluidEoS>(perfect_fluid, m_dx, m_p.G_Newton,
                                            c_Ham, Interval(c_Mom1, c_Mom3)),
         m_state_new, m_state_diagnostics, EXCLUDE_GHOST_CELLS, disable_simd());
-}
+  }
 #endif
 
 // Things to do in RHS update, at each RK4 step
@@ -85,7 +86,7 @@ void PerfectFluidLevel::specificEvalRHS(GRLevelData &a_soln, GRLevelData &a_rhs,
                                         const double a_time)
 {
     // Enforce trace free A_ij and positive chi and alpha
-    BoxLoops::loop(make_compute_pack(TraceARemoval(), PositiveDensity(),
+    BoxLoops::loop(make_compute_pack(TraceARemoval(), PositiveDensity(m_p.min_D),
                                      PositiveChiAndAlpha(),
                                      PrimitiveRecovery()),
                    a_soln, a_soln, INCLUDE_GHOST_CELLS /*, disable_simd()*/);
@@ -120,7 +121,7 @@ void PerfectFluidLevel::specificUpdateODE(GRLevelData &a_soln,
                                           const GRLevelData &a_rhs, Real a_dt)
 {
     // Enforce trace free A_ij
-    BoxLoops::loop(make_compute_pack(TraceARemoval(), PositiveDensity(),
+    BoxLoops::loop(make_compute_pack(TraceARemoval(), PositiveDensity(m_p.min_D),
                                      PositiveChiAndAlpha(),
                                      PrimitiveRecovery()),
                    a_soln, a_soln, INCLUDE_GHOST_CELLS /*, disable_simd()*/);
@@ -129,13 +130,16 @@ void PerfectFluidLevel::specificUpdateODE(GRLevelData &a_soln,
 void PerfectFluidLevel::preTagCells()
 {
     // We only use chi in the tagging criterion so only fill the ghosts for chi
-    fillAllGhosts(VariableType::evolution, Interval(c_chi, c_chi));
+    //fillAllGhosts(VariableType::evolution, Interval(c_chi, c_chi));
 }
 
 void PerfectFluidLevel::computeTaggingCriterion(
     FArrayBox &tagging_criterion, const FArrayBox &current_state,
     const FArrayBox &current_state_diagnostics)
 {
-    BoxLoops::loop(ChiTaggingCriterion(m_dx), current_state, tagging_criterion,
-                   disable_simd());
+  //BoxLoops::loop(ChiTaggingCriterion(m_dx), current_state, tagging_criterion,
+  //               disable_simd());
+  BoxLoops::loop(
+	FixedGridsTaggingCriterion(m_dx, m_level, 2.0 * m_p.L, m_p.center),
+	current_state, tagging_criterion);
 }
