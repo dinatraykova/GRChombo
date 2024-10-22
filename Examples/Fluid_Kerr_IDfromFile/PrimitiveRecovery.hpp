@@ -46,10 +46,13 @@ class PrimitiveRecovery : public EoS
         data_t S2 = 0.;
         FOR(i, j) S2 += vars.chi * h_UU[i][j] * vars.Sj[i] * vars.Sj[j];
 
+	//data_t D_regularised = simd_max(1e-12, vars.D);
+	//data_t tau_regularised = simd_max(1e-12, vars.tau);
+	
         data_t q = vars.tau / vars.D;
         data_t r = S2 / pow(vars.D, 2.);
         data_t xa = 1.5 * (1. + q);
-        Wa = sqrt(pow(xa, 2.) / (pow(xa, 2.) - r));
+        Wa = sqrt(pow(xa, 2.) / abs(pow(xa, 2.) - r));
 
         vars.rho = pow(vars.chi, 1.5) * vars.D / Wa;
         vars.eps = -1. + xa / Wa * (1. - Wa * Wa) + Wa * (1. + q);
@@ -84,6 +87,11 @@ class PrimitiveRecovery : public EoS
             vars.vi[i] = 0.;
             FOR(j) vars.vi[i] += vars.chi * h_UU[i][j] * vi_D[j];
         }
+
+	data_t chi_regularised = simd_max(1e-6, vars.chi);
+	data_t empty2;
+	if (!simd_all_false(simd_compare_lt(vars.D, 1.e-12
+            / pow(chi_regularised, 1.5)), empty2)) FOR(i) vars.vi[i] = 0.;
 
         current_cell.store_vars(vars);
     }

@@ -36,6 +36,7 @@ class SimulationParameters : public SimulationParametersBase
         pp.load("fluid_width", initial_params.awidth, 0.1);
         pp.load("fluid_delta", initial_params.delta, 0.2);
         pp.load("lambda", lambda, 1.); // eigenvalue for numerical flux
+	pp.load("min_D", min_D, 1.e-6);
 
         // Reading data
         pp.load("spacing", initial_params.spacing);
@@ -98,6 +99,7 @@ class SimulationParameters : public SimulationParametersBase
     // Initial data for matter and potential and BH
     double G_Newton;
     double lambda;
+    double min_D;
     int lines;
     InitialData::params_t initial_params;
     // KerrBH::params_t kerr_params;
