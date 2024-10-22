@@ -24,8 +24,10 @@ void InitialData::compute(Cell<data_t> current_cell) const
     // The cartesian variables and coords
     auto metric_vars = current_cell.template load_vars<MetricVars>();
     auto matter_vars = current_cell.template load_vars<Vars>();
+    
     Coordinates<data_t> coords(current_cell, m_dx, m_params.center);
-
+    VarsTools::assign(metric_vars, 0.);
+    
     // Compute the components in spherical coords as per 1401.1548
     compute_spherical(spherical_g, spherical_K, spherical_shift, coords);
 
@@ -51,7 +53,7 @@ void InitialData::compute(Cell<data_t> current_cell) const
     double lapse_L = *(m_params.lapse_1D + ind_L);
     double lapse_H = *(m_params.lapse_1D + ind_H);
     double lapse_interp =
-        lapse_L + (rr / m_params.spacing - lapse_L) * (lapse_H - lapse_L);
+        lapse_L + (rr / m_params.spacing - ind_L) * (lapse_H - lapse_L);
 
     double phi_L = *(m_params.phi_1D + ind_L);
     double phi_H = *(m_params.phi_1D + ind_H);
@@ -69,8 +71,8 @@ void InitialData::compute(Cell<data_t> current_cell) const
     // Convert to BSSN vars
     data_t deth = compute_determinant(metric_vars.h);
     auto h_UU = compute_inverse_sym(metric_vars.h);
-    //metric_vars.chi = exp(-4.*phi_interp); //pow(deth, -1. / 3.);
-    metric_vars.chi = pow(deth, -1. / 3.); 
+    //metric_vars.chi = exp(-4.*phi_interp);
+    metric_vars.chi = 1./(1.+exp(-rr/20.)); //pow(deth, -1. / 3.); 
 
     // transform extrinsic curvature into A and TrK - note h is still non
     // conformal version which is what we need here
@@ -80,7 +82,7 @@ void InitialData::compute(Cell<data_t> current_cell) const
     // Make conformal
     FOR(i, j)
     {
-        metric_vars.h[i][j] *= metric_vars.chi;
+      //metric_vars.h[i][j] *= metric_vars.chi;
         metric_vars.A[i][j] *= metric_vars.chi;
     }
 
@@ -102,10 +104,10 @@ void InitialData::compute(Cell<data_t> current_cell) const
     data_t chi_regularised = simd_max(metric_vars.chi, 1e-6);
 
     // calculate the field value
-    matter_vars.rho = m_params.rho0; // rho_interp;
-      //m_params.rho0 * (exp(-pow(rr / 2. / m_params.awidth, 2.0))) +
-                       // m_params.delta;
-    //matter_vars.eps = eps_interp;
+    matter_vars.rho =  //rho_interp;
+    m_params.rho0 * (exp(-pow(rr / 2. / m_params.awidth, 2.0))) + m_params.delta;
+    matter_vars.eps = 0.;
+    //      m_params.rho0 * 100. * (exp(-pow(rr / 2. / m_params.awidth, 2.0))) + m_params.delta;
     data_t v2 = 0.;
     FOR(i, j)
     v2 += metric_vars.h[i][j] * matter_vars.vi[i] * matter_vars.vi[j] /
