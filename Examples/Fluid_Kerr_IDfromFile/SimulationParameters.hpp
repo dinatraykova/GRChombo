@@ -37,39 +37,39 @@ class SimulationParameters : public SimulationParametersBase
         pp.load("fluid_delta", initial_params.delta, 0.2);
         pp.load("lambda", lambda, 1.); // eigenvalue for numerical flux
 
-	// Reading data
+        // Reading data
         pp.load("spacing", initial_params.spacing);
         pp.load("lines", lines);
         double rho_1D[lines];
-	double eps_1D[lines];
-	double lapse_1D[lines];
-	double phi_1D[lines];
+        double eps_1D[lines];
+        double lapse_1D[lines];
+        double phi_1D[lines];
 
         double tmp_data;
-        ifstream read_file_rho("rho_vs_r.csv");
-	ifstream read_file_eps("eps_vs_r.csv");
-	ifstream read_file_lapse("lapse_vs_r.csv");
-	ifstream read_file_phi("phi_vs_r.csv");
-	
+        ifstream read_file_rho("data_files/rho_vs_r.txt");
+        ifstream read_file_eps("data_files/eps_vs_r.txt");
+        ifstream read_file_lapse("data_files/lapse_vs_r.txt");
+        ifstream read_file_phi("data_files/phi_vs_r.txt");
+
         for (int i = 0; i < lines; ++i)
         {
             read_file_rho >> tmp_data;
             rho_1D[i] = tmp_data;
-	    
-	    read_file_eps >> tmp_data;
+
+            read_file_eps >> tmp_data;
             eps_1D[i] = tmp_data;
-	    
-	    read_file_lapse >> tmp_data;
+
+            read_file_lapse >> tmp_data;
             lapse_1D[i] = tmp_data;
 
-	    read_file_phi >> tmp_data;
+            read_file_phi >> tmp_data;
             phi_1D[i] = tmp_data;
         }
         initial_params.rho_1D = rho_1D;
-	initial_params.eps_1D = eps_1D;
-	initial_params.lapse_1D = lapse_1D;
-	initial_params.phi_1D = phi_1D;
-	
+        initial_params.eps_1D = eps_1D;
+        initial_params.lapse_1D = lapse_1D;
+        initial_params.phi_1D = phi_1D;
+
         // Initial Kerr data
         pp.load("kerr_mass", initial_params.mass);
         pp.load("kerr_spin", initial_params.spin);
